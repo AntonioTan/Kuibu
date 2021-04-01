@@ -4,11 +4,19 @@
  * @Autor: Tabbit
  * @Date: 2021-03-19 19:03:06
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-03-20 01:07:03
+ * @LastEditTime: 2021-03-22 15:36:48
  */
 import React from 'react';
-import { Box, List, ListItem, ListItemText } from '@material-ui/core';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
+  Badge,
+} from '@material-ui/core';
 import InfiniteScroll from 'react-infinite-scroller';
+import { MessageBox } from '../components/MessageBox';
 
 export default function ChatPage() {
   let initialMessageList = [];
@@ -43,27 +51,10 @@ export default function ChatPage() {
     console.log('here we are!');
     let newMessageList = Object.assign([], messageList);
     newMessageList.push(
-      <Box
-        display="flex"
-        flexDirection={newMessageList.length % 2 == 0 ? 'row-reverse' : 'row'}
-        p={1}
-        m={1}
-        bgcolor="background.paper"
-      >
-        <Box p={1} bgcolor="grey.300">
-          <List style={{ width: 500 }}>
-            <ListItem
-              style={{
-                width: 500,
-                display: 'flex',
-                flexDirection: 'row-reverse',
-              }}
-            >
-              <ListItemText primary={`Item ${newMessageList.length}`} />
-            </ListItem>
-          </List>
-        </Box>
-      </Box>
+      <MessageBox
+        index={newMessageList.length}
+        name={`message ${newMessageList.length}`}
+      ></MessageBox>
     );
     console.log(newMessageList.length);
     setMessageList(newMessageList);

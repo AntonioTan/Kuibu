@@ -30,6 +30,7 @@
     "src/dist",
     ".erb/dll"
   ],
-  "include": ["typings"]
+  "include": ["src", "typings"]
+
 
 }

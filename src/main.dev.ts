@@ -15,6 +15,7 @@ import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import { Hash } from 'crypto';
 const { ipcMain } = require('electron');
 
 export default class AppUpdater {
@@ -78,6 +79,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
     },
     titleBarStyle: 'hidden',
   });
@@ -86,7 +88,9 @@ const createWindow = async () => {
 
   ipcMain.on('goHome', function (_event: any) {
     if (mainWindow != null)
-      mainWindow.loadURL(`file://${__dirname}/index.html`);
+      mainWindow.loadFile('index.html', {
+        // hash: '/',
+      });
   });
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event

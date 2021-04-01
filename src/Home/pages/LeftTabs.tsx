@@ -4,10 +4,10 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 14:36:41
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-03-19 22:02:42
+ * @LastEditTime: 2021-04-01 18:58:36
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   createStyles,
   makeStyles,
@@ -35,11 +35,11 @@ import Box from '@material-ui/core/Box';
 import { services as mainServices } from '../../utils/globals';
 import clsx from 'clsx';
 import Drawer from '@material-ui/core/Drawer';
-import Button from '@material-ui/core/Button';
 import remote, { ipcRenderer } from 'electron';
 import { Icon, Menu, MenuItem } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
 import ChatPage from '../../Chat/pages/ChatPage';
+import ContactDrawer from '../../Chat/components/ContactDrawer';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -159,14 +159,21 @@ export default function VerticalTabs() {
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
   const [auth, setAuth] = React.useState(true);
+  const [openMenu, setMenuOpen] = React.useState(false);
+  const [openChat, setOpenChat] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const services: String[] = mainServices;
   let tabItems: JSX.Element[] = [];
   let tabPanelItems: JSX.Element[] = [];
+  useEffect(() => {
+    console.log('useEffect执行了');
+  }, [openChat]);
 
-  const [openMenu, setMenuOpen] = React.useState(false);
   const openProfile = Boolean(anchorEl);
-
+  const handleChatOpenClick = () => {
+    console.log(openChat);
+    setOpenChat(!openChat);
+  };
   const handleDrawerOpen = () => {
     setMenuOpen(true);
   };
@@ -255,6 +262,10 @@ export default function VerticalTabs() {
     </div>
   );
 
+  const handleTest = () => {
+    setValue(value - 1);
+    console.log(value);
+  };
   // return (
   //   <div>
   //     {(['left', 'right', 'top', 'bottom'] as Anchor[]).map((anchor) => (
@@ -354,13 +365,16 @@ export default function VerticalTabs() {
         <Divider />
         <List>
           {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
+            <ListItem button key={text} onClick={handleChatOpenClick}>
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
               <ListItemText primary={text} style={{ color: '#FFFFFF' }} />
             </ListItem>
           ))}
+          <ListItem>
+            <ListItemText>{value}</ListItemText>
+          </ListItem>
         </List>
         <Divider />
         <List>
@@ -387,6 +401,11 @@ export default function VerticalTabs() {
         </List>
         {tabItems}
       </Drawer>
+      <ContactDrawer
+        open={openChat}
+        theme={theme}
+        handleTest={handleTest}
+      ></ContactDrawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
         <Typography paragraph>

@@ -4,12 +4,12 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-03-18 22:24:04
+ * @LastEditTime: 2021-04-01 19:06:59
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { Container, Row, Col } from 'react-grid-system';
-import icon from '../assets/icon.svg';
+// import icon from '../assets/icon.svg';
 // import './App.global.css';
 import 'antd/dist/antd.css';
 // import {Button} from '';
@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Home from './Home/index';
+import { LoginView } from './Login/views/login';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Hello = () => {
+const Login = () => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -101,7 +102,7 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={Hello} />
+        <Route exact path="/" component={LoginView} />
         <Route exact path="/home" component={Home} />
       </Switch>
     </Router>

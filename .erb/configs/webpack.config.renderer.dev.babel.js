@@ -204,9 +204,16 @@ export default merge(baseConfig, {
         },
       },
       // Common Image Formats
+      // {
+      //   test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
+      //   use: 'url-loader',
+      // },
       {
-        test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-        use: 'url-loader',
+        test: /\.(png|jpe?g|gif|jp2|webp)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]',
+        },
       },
     ],
   },
