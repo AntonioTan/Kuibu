@@ -92,6 +92,12 @@ const createWindow = async () => {
         // hash: '/',
       });
   });
+  ipcMain.on('goMain', function (_event: any) {
+    if (mainWindow != null)
+      mainWindow.loadFile('index.html', {
+        hash: '/home',
+      });
+  });
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-22 16:15:59
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-01 10:51:00
+ * @LastEditTime: 2021-04-05 16:53:46
  */
 import {
   Drawer,
@@ -66,41 +66,44 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function ContactDrawer(props) {
-  // theme = useTheme();
-  // const [openChat, setOpenChat] = React.useState();
+export default function ContactDrawer(props: any) {
   const classes = useStyles(props.theme);
-  console.log(props.open);
-  // constructor(props) {
-  //   super(props);
-  // }
 
-  const ws = new WebSocket(
-    'ws:127.0.0.1:8080/chat?senderID=001&receiverID=002'
-  );
-  const ws2 = new WebSocket(
-    'ws:127.0.0.1:8080/chat?senderID=001&receiverID=002'
-  );
-
-  axios.get('http://127.0.0.1:8080/events').then((e) => console.log('jjj'));
+  axios.get('http://127.0.0.1:8080/events').then((e) => console.log(e));
   // const ws2 = new WebSocket('ws:127.0.0.1:8080/events');
   // ws2.onmessage = (e) => {
   //   console.log(e);
-  // };
+
+  const ws = new WebSocket(
+    'ws:127.0.0.1:8080/chat/msg?senderID=001&receiverID=002'
+  );
+  const ws2 = new WebSocket(
+    'ws:127.0.0.1:8080/chat/msg?senderID=001&receiverID=002'
+  ); // };
   ws.onopen = (e) => {
     console.log('connected');
-    const res = ws.send('hello');
+    // const res = ws.send('hello');
     // console.log(res);
   };
   ws2.onopen = (e) => {
-    console.log('connected');
-    const res = ws2.send('hello2');
-    console.log(res);
+    // console.log('connected');
+    // const res = ws2.send('hello2');
+    // console.log(res);
+    var a = {
+      type: 'WebLoginMessage',
+      loginType: 'hh',
+      infoList: ['jj'],
+      sender: '000010',
+    };
+    console.log(
+      JSON.stringify(a) ==
+        '{"type":"WebLoginMessage","loginType":"hh","infoList":["jj"],"sender":"000010"}'
+    );
+    ws2.send(JSON.stringify(a));
   };
   ws2.onmessage = (e) => {
     console.log(e);
   };
-
   return (
     <Drawer
       variant="permanent"

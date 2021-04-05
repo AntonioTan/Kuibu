@@ -5876,6 +5876,13 @@ flatted@^2.0.0:
   resolved "https://registry.npmjs.org/flatted/-/flatted-2.0.2.tgz"
   integrity sha512-r5wGx7YeOwNWNlCA0wQ86zKyDLMQr+/RB8xy74M4hTphfmjlijTSSXGuH8rnvKZnfT9i+75zmd8jcKdMR4O6jA==
 
+flip-toolkit@7.0.13:
+  version "7.0.13"
+  resolved "https://registry.npm.taobao.org/flip-toolkit/download/flip-toolkit-7.0.13.tgz#015d2d7ae4ef0abe3d1adff45fd98d4b63ef0202"
+  integrity sha1-AV0teuTvCr49Gt/0X9mNS2PvAgI=
+  dependencies:
+    rematrix "0.2.2"
+
 follow-redirects@^1.0.0:
   version "1.13.0"
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.13.0.tgz"
@@ -9929,7 +9936,7 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.7.2.tgz"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10468,6 +10475,19 @@ react-dom@^17.0.1:
     object-assign "^4.1.1"
     scheduler "^0.20.1"
 
+react-flip-toolkit@^7.0.13:
+  version "7.0.13"
+  resolved "https://registry.npm.taobao.org/react-flip-toolkit/download/react-flip-toolkit-7.0.13.tgz#3dd0b58e0cc54c3420bcbf973df899d1d63cd626"
+  integrity sha1-PdC1jgzFTDQgvL+XPfiZ0dY81iY=
+  dependencies:
+    flip-toolkit "7.0.13"
+    prop-types "^15.5.7"
+
+react-flippy@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.npm.taobao.org/react-flippy/download/react-flippy-0.1.5.tgz#ba097fbd671ef315e7726dc26ea918e0b19be343"
+  integrity sha1-ugl/vWce8xXncm3CbqkY4LGb40M=
+
 react-grid-system@^7.1.2:
   version "7.1.2"
   resolved "https://registry.npm.taobao.org/react-grid-system/download/react-grid-system-7.1.2.tgz"
@@ -10851,6 +10871,11 @@ regjsparser@^0.6.4:
   integrity sha512-64O87/dPDgfk8/RQqC4gkZoGyyWFIEUTTh80CU6CWuK5vkCGyekIx+oKcEIYtP/RAxSQltCZHCNu/mdd7fqlJw==
   dependencies:
     jsesc "~0.5.0"
+
+rematrix@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.npm.taobao.org/rematrix/download/rematrix-0.2.2.tgz#c96a050260782db9908904885991256e23beda5d"
+  integrity sha1-yWoFAmB4LbmQiQSIWZElbiO+2l0=
 
 remove-trailing-separator@^1.0.1:
   version "1.1.0"

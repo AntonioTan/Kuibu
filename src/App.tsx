@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-01 19:06:59
+ * @LastEditTime: 2021-04-04 23:11:44
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -17,7 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Home from './Home/index';
-import { LoginView } from './Login/views/login';
+import { LoginView } from './Login/login';
 
 const useStyles = makeStyles((theme) => ({
   root: {

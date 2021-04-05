@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 14:36:41
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-01 18:58:36
+ * @LastEditTime: 2021-04-05 22:55:09
  */
 
 import React, { useEffect } from 'react';
@@ -40,6 +40,7 @@ import { Icon, Menu, MenuItem } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
 import ChatPage from '../../Chat/pages/ChatPage';
 import ContactDrawer from '../../Chat/components/ContactDrawer';
+import { KuibuTitle } from '../../utils/components/KuibuTitle';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -99,7 +100,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      background: '#009900',
+      background: 'primary',
     },
     appBarShift: {
       marginLeft: drawerWidth,
@@ -126,7 +127,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      background: '#009900',
+      background: 'primary',
     },
     drawerClose: {
       transition: theme.transitions.create('width', {
@@ -266,22 +267,6 @@ export default function VerticalTabs() {
     setValue(value - 1);
     console.log(value);
   };
-  // return (
-  //   <div>
-  //     {(['left', 'right', 'top', 'bottom'] as Anchor[]).map((anchor) => (
-  //       <React.Fragment key={anchor}>
-  //         <Button onClick={toggleDrawer(anchor, true)}>{anchor}</Button>
-  //         <Drawer
-  //           anchor={anchor}
-  //           open={state[anchor]}
-  //           onClose={toggleDrawer(anchor, false)}
-  //         >
-  //           {list(anchor)}
-  //         </Drawer>
-  //       </React.Fragment>
-  //     ))}
-  //   </div>
-  // );
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -303,9 +288,7 @@ export default function VerticalTabs() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" style={{ width: 900 }} noWrap>
-            Mini variant drawer
-          </Typography>
+          <KuibuTitle></KuibuTitle>
           {auth && (
             <div>
               <IconButton
