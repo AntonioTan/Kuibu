@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-01 18:59:31
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-05 22:54:04
+ * @LastEditTime: 2021-04-06 00:02:17
  */
 import {
   AppBar,
@@ -60,7 +60,7 @@ const theme = createMuiTheme({
   },
 });
 
-export const LoginView = () => {
+export const LoginPage = () => {
   const [whetherRegister, setWhetherRegister] = React.useState(false);
   const classes = useStyles();
   const handleRegisterClick = () => {
@@ -75,7 +75,7 @@ export const LoginView = () => {
           <Grid
             container
             spacing={2}
-            direction="row"
+            direction="column"
             justify="center"
             alignItems="center"
             style={{

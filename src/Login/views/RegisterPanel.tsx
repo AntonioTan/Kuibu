@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 18:41:39
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-05 22:43:17
+ * @LastEditTime: 2021-04-06 00:04:58
  */
 
 import {
@@ -35,7 +35,7 @@ export const RegisterPanel = (props: any) => {
         style={{
           marginRight: '100px',
           width: '400px',
-          height: '400px',
+          height: '370px',
         }}
       >
         <Grid item style={{ marginTop: '60px' }}>

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-05 23:01:26
+ * @LastEditTime: 2021-04-06 00:05:37
  */
 import {
   Button,
@@ -37,7 +37,7 @@ export const LoginPanel = (props: any) => {
           // marginTop: '130px',
           marginRight: '100px',
           width: '400px',
-          height: '300px',
+          height: '270px',
         }}
       >
         <Grid item style={{ marginTop: '50px' }}>

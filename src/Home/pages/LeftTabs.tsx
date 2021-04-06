@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 14:36:41
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-05 22:55:09
+ * @LastEditTime: 2021-04-05 23:47:46
  */
 
 import React, { useEffect } from 'react';
@@ -95,11 +95,11 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '300',
     },
     appBar: {
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
+      // zIndex: theme.zIndex.drawer + 1,
+      // transition: theme.transitions.create(['width', 'margin'], {
+      //   easing: theme.transitions.easing.sharp,
+      //   duration: theme.transitions.duration.leavingScreen,
+      // }),
       background: 'primary',
     },
     appBarShift: {
