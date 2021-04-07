@@ -14,7 +14,6 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 import React, { useState } from 'react';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -82,11 +81,6 @@ export const ProjectCard = (props: any) => {
           title={props.name}
           subheader="创建于2020年2月22日"
           style={{ textAlign: 'left' }}
-          action={
-            <IconButton aria-label="close">
-              <CloseIcon />
-            </IconButton>
-          }
         ></CardHeader>
         <Collapse in={contentOpen}>
           <CardContent>
@@ -140,18 +134,7 @@ export const ProjectCard = (props: any) => {
                 <Divider variant="middle" />
               </Grid>
               <Grid item>
-                <Typography>
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                  该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                </Typography>
+                <Typography>{props.description}</Typography>
               </Grid>
             </Grid>
           </CardContent>

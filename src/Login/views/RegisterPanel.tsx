@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 18:41:39
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 00:04:58
+ * @LastEditTime: 2021-04-07 20:54:29
  */
 
 import {
@@ -79,6 +79,7 @@ export const RegisterPanel = (props: any) => {
                   <TextField
                     id="input-with-icon-grid"
                     fullWidth={true}
+                    type="password"
                     label="密码"
                     placeholder="请输入密码"
                     size="medium"
@@ -105,34 +106,9 @@ export const RegisterPanel = (props: any) => {
                   <TextField
                     id="input-with-icon-grid"
                     fullWidth={true}
-                    label="密码"
-                    placeholder="请输入密码"
-                    size="medium"
-                    style={{
-                      width: '250px',
-                    }}
-                    inputProps={{
-                      classes: {
-                        input: {
-                          fontsize: 50,
-                        },
-                      },
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Grid container spacing={2} alignItems="flex-end">
-                <Grid item>
-                  <Lock />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    id="input-with-icon-grid"
-                    fullWidth={true}
+                    type="password"
                     label="重复密码"
-                    placeholder="请输入密码"
+                    placeholder="请再次输入密码"
                     size="medium"
                     style={{
                       width: '250px',

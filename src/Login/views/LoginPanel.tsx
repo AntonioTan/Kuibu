@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 00:05:37
+ * @LastEditTime: 2021-04-07 21:14:32
  */
 import {
   Button,
@@ -84,6 +84,7 @@ export const LoginPanel = (props: any) => {
                     label="密码"
                     placeholder="请输入密码"
                     size="medium"
+                    type="password"
                     style={{
                       width: '250px',
                     }}
