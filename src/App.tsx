@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 00:09:17
+ * @LastEditTime: 2021-04-06 16:22:43
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ import Grid from '@material-ui/core/Grid';
 import Home from './Home/index';
 import { LoginPage } from './Login/LoginPage';
 import { HomePage } from './Home/pages/HomePage';
+import { ProjectsPage } from './Projects/ProjectsPage';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -104,7 +105,7 @@ export default function App() {
     <Router>
       <Switch>
         <Route exact path="/" component={LoginPage} />
-        <Route exact path="/home" component={HomePage} />
+        <Route exact path="/home" component={ProjectsPage} />
       </Switch>
     </Router>
   );

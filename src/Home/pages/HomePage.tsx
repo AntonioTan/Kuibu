@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 15:09:14
+ * @LastEditTime: 2021-04-06 15:14:25
  */
 
 import {
@@ -16,6 +16,7 @@ import {
   CardHeader,
   createStyles,
   CssBaseline,
+  Divider,
   Grid,
   IconButton,
   makeStyles,
@@ -182,6 +183,9 @@ export const HomePage = () => {
                               </Typography>
                             </Grid>
                           </Grid>
+                        </Grid>
+                        <Grid item>
+                          <Divider variant="middle" />
                         </Grid>
                         <Grid item>
                           <Typography>
