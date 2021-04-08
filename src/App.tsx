@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 16:22:43
+ * @LastEditTime: 2021-04-08 09:04:18
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -105,7 +105,8 @@ export default function App() {
     <Router>
       <Switch>
         <Route exact path="/" component={LoginPage} />
-        <Route exact path="/home" component={ProjectsPage} />
+        <Route exact path="/projects" component={ProjectsPage} />
+        <Route exact path="/home" component={HomePage} />
       </Switch>
     </Router>
   );

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-07 21:14:32
+ * @LastEditTime: 2021-04-08 09:13:50
  */
 import {
   Button,
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const loginClick = () => {
-  ipcRenderer.send('goMain');
+  ipcRenderer.send('goProjects');
 };
 export const LoginPanel = (props: any) => {
   const classes = useStyles();

@@ -17,6 +17,7 @@ import {
 import React, { useState } from 'react';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { ipcRenderer } from 'electron/renderer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,6 +64,9 @@ export const ProjectCard = (props: any) => {
   const classes = useStyles();
   const handleContentOpen = () => {
     setContentOpen(!contentOpen);
+  };
+  const handleEnterProject = () => {
+    ipcRenderer.send('goHome');
   };
   return (
     <div>
@@ -143,6 +147,7 @@ export const ProjectCard = (props: any) => {
           <Button
             variant="outlined"
             style={{ backgroundColor: '#0f7385', color: '#d7ebed' }}
+            onClick={handleEnterProject}
           >
             进入
           </Button>
