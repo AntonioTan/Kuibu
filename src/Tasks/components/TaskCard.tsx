@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 10:54:07
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 09:24:51
+ * @LastEditTime: 2021-04-16 19:51:01
  */
 
 import {
@@ -29,6 +29,12 @@ import React, { useState } from 'react';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { ipcRenderer } from 'electron';
+import { TaskInterface } from './CreateTaskDialog';
+
+interface TaskCardPropsInterface {
+  readonly targetTask: TaskInterface;
+  readonly openEditTaskPanel: () => void;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-export const TaskCard = () => {
+export const TaskCard = (props: TaskCardPropsInterface) => {
   const classes = useStyles();
   const [state, setState] = useState({
     drawer: false,
@@ -65,34 +71,42 @@ export const TaskCard = () => {
     <div>
       <Card>
         <CardContent>
-          <Typography variant="h6">任务一</Typography>
-          <Typography variant="subtitle1">创建于2020/02/022</Typography>
-          <AvatarGroup max={4}>
-            <Avatar
-              style={{ backgroundColor: 'orange' }}
-              className={classes.avatarSmall}
-            >
-              T
-            </Avatar>
-            <Avatar
-              style={{ backgroundColor: 'green' }}
-              className={classes.avatarSmall}
-            >
-              H
-            </Avatar>
-            <Avatar
-              style={{ backgroundColor: 'blue' }}
-              className={classes.avatarSmall}
-            >
-              E
-            </Avatar>
-          </AvatarGroup>
-          <Typography>开始日期: 2020/02/22</Typography>
-          <Typography> 结束日期: 2020/02/23</Typography>
-          <Typography>任务描述: 主要负责任务管理信息系统的开发工作</Typography>
+          <Typography variant="h6">{props.targetTask.taskName}</Typography>
+          {/* <Typography variant="subtitle1">创建于2020/02/022</Typography> */}
+          <Grid container direction="row" alignItems="center">
+            <Grid item>
+              <Typography variant="inherit" style={{ fontSize: '15px' }}>
+                参与人:
+              </Typography>
+            </Grid>
+            <Grid item>
+              <AvatarGroup max={4}>
+                {Object.entries(props.targetTask.leaders)
+                  .filter((leader: [string, boolean]) => leader[1])
+                  .map((leader: [string, boolean]) => (
+                    <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                  ))}
+
+                {Object.entries(props.targetTask.members)
+                  .filter((member: [string, boolean]) => member[1])
+                  .map((member: [string, boolean]) => (
+                    <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                  ))}
+              </AvatarGroup>
+            </Grid>
+          </Grid>
+          <Typography>{`开始日期: ${props.targetTask.startDate?.toLocaleDateString()}`}</Typography>
+          <Typography>{`结束日期: ${props.targetTask.endDate?.toLocaleDateString()}`}</Typography>
+          <Typography>
+            {`任务描述: ${props.targetTask.description}`}{' '}
+          </Typography>
         </CardContent>
         <CardActions>
-          <Button variant="outlined" color="primary">
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={props.openEditTaskPanel}
+          >
             查看详情
           </Button>
           <Button

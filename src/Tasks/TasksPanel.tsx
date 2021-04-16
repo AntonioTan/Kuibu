@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 09:31:10
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 09:29:46
+ * @LastEditTime: 2021-04-16 19:45:38
  */
 import {
   Button,
@@ -51,7 +51,8 @@ import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Draggable from 'react-draggable';
 import { CheckBox } from '@material-ui/icons';
-import { CreateTaskDialog } from './components/CreateTaskDialog';
+import { CreateTaskDialog, TaskInterface } from './components/CreateTaskDialog';
+import { EditTaskDialog } from './components/EditTaskDialog';
 
 const originalTaskNames = [
   '完成开题报告',
@@ -68,10 +69,13 @@ export const TasksPanel = () => {
   const [searched, setSearched] = useState<string>('');
   const [taskNames, setTaskNames] = useState<string[]>(originalTaskNames);
   const [whetherCreateTask, setWhetherCreateTask] = useState(false);
+  const [whetherEditTask, setWhetherEditTask] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [whetherSelectMember, setWhetherSelectMember] = useState<boolean>(
     false
   );
+  const [taskList, setTaskList] = useState<Array<TaskInterface>>([]);
+
   const requestSearch = (searchedVal: string) => {
     const filteredTaskNames = originalTaskNames.filter(
       (taskName) => taskName.indexOf(searchedVal) != -1
@@ -88,8 +92,12 @@ export const TasksPanel = () => {
     setWhetherCreateTask(true);
   };
 
-  const handleWhetherCreateTaskPanel = () => {
-    setWhetherCreateTask(false);
+  const handleWhetherCreateTaskPanel = (val: boolean) => {
+    setWhetherCreateTask(val);
+  };
+
+  const handleWhetherEditTaskPanel = (val: boolean) => {
+    setWhetherEditTask(val);
   };
 
   const handleStartDateChange = (value: MaterialUiPickersDate) => {
@@ -98,6 +106,14 @@ export const TasksPanel = () => {
 
   const handleSelectMember = (val: boolean) => {
     setWhetherSelectMember(val);
+  };
+
+  const openEditTaskPanel = () => {
+    setWhetherEditTask(true);
+  };
+
+  const handleAddTaskList = (newTask: TaskInterface) => {
+    taskList.push(newTask);
   };
 
   function PaperComponent() {
@@ -115,13 +131,14 @@ export const TasksPanel = () => {
     <div>
       <Grid
         container
-        direction="row"
+        direction="column"
         style={{
           // marginTop: '70px',
           width: '700px',
           height: '600px',
         }}
-        justify="center"
+
+        // justify="center"
       >
         <Grid item>
           <Grid container direction="row" justify="center" alignItems="center">
@@ -146,14 +163,21 @@ export const TasksPanel = () => {
         <CreateTaskDialog
           whetherCreateTask={whetherCreateTask}
           handleWhetherCreateTaskPanel={handleWhetherCreateTaskPanel}
+          handleAddTaskList={handleAddTaskList}
         ></CreateTaskDialog>
-
+        <EditTaskDialog
+          whetherEditTask={whetherEditTask}
+          handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
+        ></EditTaskDialog>
         <Grid item>
           <Grid container direction="row" justify="space-evenly" spacing={2}>
-            {taskNames.map((name, index) => {
+            {taskList.map((task, index) => {
               return (
                 <Grid item style={{ width: '340px' }}>
-                  <TaskCard></TaskCard>
+                  <TaskCard
+                    openEditTaskPanel={openEditTaskPanel}
+                    targetTask={task}
+                  ></TaskCard>
                 </Grid>
               );
             })}

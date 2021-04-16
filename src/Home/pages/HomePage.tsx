@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 08:52:10
+ * @LastEditTime: 2021-04-16 19:50:03
  */
 
 import {
@@ -159,7 +159,7 @@ export const HomePage = () => {
   const [discussionTabExpanded, setDiscussionTabExpanded] = React.useState(
     false
   );
-  const [functionID, setFunctionID] = React.useState('vertical-tab-0');
+  const [functionID, setFunctionID] = React.useState('vertical-function-tab-0');
   const handleFunctionTabChange = (event: any, newValue: number) => {
     setFunctionID(event.currentTarget.id);
     if (typeof newValue === typeof 1) {

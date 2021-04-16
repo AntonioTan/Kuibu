@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-16 09:29:30
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 09:44:35
+ * @LastEditTime: 2021-04-16 19:48:07
  */
 
 import {
@@ -41,9 +41,19 @@ import { SelectMemberDialog } from './SelectMemberDialog';
 import { fakeMembers } from '../../utils/mock';
 import AssignmentReturnIcon from '@material-ui/icons/AssignmentReturn';
 
-export const EditTaskDialog = () => {
+interface EditTaskPropsInterface {
+  readonly whetherEditTask: boolean;
+  readonly handleWhetherEditTaskPanel: (val: boolean) => void;
+}
+
+export const EditTaskDialog = (props: EditTaskPropsInterface) => {
   return (
-    <Dialog open={false} fullScreen={true} scroll="paper">
+    <Dialog
+      open={props.whetherEditTask}
+      style={{ height: '650px', width: '1000px' }}
+      scroll="paper"
+      classes={{ paper: "{minWidth: '1400px'}" }}
+    >
       <MuiDialogTitle disableTypography id="edit-task-dialog-title">
         <Grid
           container
@@ -62,7 +72,10 @@ export const EditTaskDialog = () => {
             </IconButton>
           </Grid>
           <Grid item>
-            <IconButton style={{ right: 0 }}>
+            <IconButton
+              style={{ right: 0 }}
+              onClick={() => props.handleWhetherEditTaskPanel(false)}
+            >
               <CloseIcon />
             </IconButton>
           </Grid>

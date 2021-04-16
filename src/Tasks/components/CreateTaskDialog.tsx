@@ -1,8 +1,11 @@
 import {
+  Avatar,
   Button,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
+  Divider,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -12,6 +15,8 @@ import {
   InputLabel,
   List,
   ListItem,
+  ListItemText,
+  TextField,
   Typography,
 } from '@material-ui/core';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
@@ -30,18 +35,25 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { SelectMemberDialog } from './SelectMemberDialog';
 import { fakeMembers } from '../../utils/mock';
+import { AvatarGroup } from '@material-ui/lab';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import FlagIcon from '@material-ui/icons/Flag';
+import GroupIcon from '@material-ui/icons/Group';
 
-interface TaskInterface {
+export interface TaskInterface {
   taskName: string;
   startDate?: Date;
   endDate?: Date;
-  leader: string;
+  description: string;
+  leaders: { [key: string]: boolean };
   members: { [key: string]: boolean };
 }
 
-interface TaskPropsInterface {
+interface CreateTaskPropsInterface {
   readonly whetherCreateTask: boolean;
   readonly handleWhetherCreateTaskPanel: (val: boolean) => void;
+  readonly handleAddTaskList: (newTask: TaskInterface) => void;
 }
 
 const originalFakeSelectMemberMap: { [key: string]: boolean } = {};
@@ -49,18 +61,31 @@ fakeMembers.map(
   (fakeMember) => (originalFakeSelectMemberMap[fakeMember] = false)
 );
 
-export const CreateTaskDialog = (props: TaskPropsInterface) => {
+export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   const [taskForm, setTaskForm] = useState<TaskInterface>({
     taskName: '',
     startDate: new Date(),
     endDate: new Date(),
-    leader: '',
+    description: '',
+    leaders: originalFakeSelectMemberMap,
     members: originalFakeSelectMemberMap,
   });
+  const [whetherOpenSelectedMembers, setWhetherOpenSelectedMembers] = useState<
+    boolean
+  >(false);
+
+  const [whetherOpenSelectedLeaders, setWhetherOpenSelectedLeaders] = useState<
+    boolean
+  >(false);
 
   const [whetherSelectMember, setWhetherSelectMember] = useState<boolean>(
     false
   );
+
+  const [whetherSelectLeader, setWhetherSelectLeader] = useState<boolean>(
+    false
+  );
+
   type taskInterfaceKeys = keyof TaskInterface;
 
   const handleStartDateChange = (
@@ -72,6 +97,9 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
 
   const handleWhetherSelectMember = (val: boolean) => {
     setWhetherSelectMember(val);
+  };
+  const handleWhetherSelectLeader = (val: boolean) => {
+    setWhetherSelectLeader(val);
   };
 
   const handleCheckMember = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,13 +113,94 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
     });
   };
 
+  const handleCancelCheckMemberClick = () => {
+    var newMembers: { [key: string]: boolean } = {};
+    Object.entries(taskForm['members']).map((member: [string, boolean]) => {
+      newMembers[member[0]] = false;
+    });
+    setTaskForm({
+      ...taskForm,
+      ['members']: newMembers,
+    });
+  };
+
+  const handleCheckLeader = (e: React.ChangeEvent<HTMLInputElement>) => {
+    var newMembers: { [key: string]: boolean } = {};
+
+    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+      if (!leader[1] && leader[0] != e.currentTarget.name)
+        newMembers[leader[0]] = false;
+    });
+
+    setTaskForm({
+      ...taskForm,
+      ['members']: newMembers,
+      ['leaders']: {
+        ...taskForm['leaders'],
+        [e.currentTarget.name]: e.currentTarget.checked,
+      },
+    });
+    // setTaskForm({
+    //   ...taskForm,
+    //   ['members']: newMembers,
+    // });
+  };
+
+  const handleCancelCheckLeaderClick = () => {
+    var newLeaders: { [key: string]: boolean } = {};
+    var newMembers: { [key: string]: boolean } = {};
+    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+      newLeaders[leader[0]] = false;
+      newMembers[leader[0]] = false;
+    });
+    setTaskForm({
+      ...taskForm,
+      ['leaders']: newLeaders,
+      ['members']: newMembers,
+    });
+  };
+
+  const handleWhetherOpenSelectedMembers = () => {
+    setWhetherOpenSelectedMembers(!whetherOpenSelectedMembers);
+  };
+  const handleWhetherOpenSelectedLeaders = () => {
+    setWhetherOpenSelectedLeaders(!whetherOpenSelectedLeaders);
+  };
+
+  const handleTaskDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setTaskForm({
+      ...taskForm,
+      ['description']: event.currentTarget.value,
+    });
+  };
+
+  const handleTaskNameChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setTaskForm({
+      ...taskForm,
+      ['taskName']: event.currentTarget.value,
+    });
+  };
+
+  const handleConfirmClick = () => {
+    props.handleAddTaskList(taskForm);
+    props.handleWhetherCreateTaskPanel(false);
+  };
+
+  const handleCancelClick = () => {
+    props.handleWhetherCreateTaskPanel(false);
+  };
+
   return (
     <Dialog
       open={props.whetherCreateTask}
       scroll="paper"
       style={{ marginTop: '65px', height: '500px' }}
     >
-      <MuiDialogTitle disableTypography id="simple-dialog-title">
+      <MuiDialogTitle disableTypography id="create-task-dialog-title">
         <Grid
           container
           direction="row"
@@ -116,18 +225,28 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
       <DialogContent dividers>
         <DialogContentText>
           <List>
-            <ListItem>
+            <ListItem id="edit-task-list-item">
+              <FormControl>
+                <InputLabel htmlFor="taskName">任务名称</InputLabel>
+                <Input
+                  id="taskName"
+                  style={{ width: '350px' }}
+                  onChange={handleTaskNameChange}
+                ></Input>
+              </FormControl>
+            </ListItem>
+            <ListItem id="creater-list-item">
               <FormControl>
                 <InputLabel htmlFor="leader">创建人</InputLabel>
                 <Input
                   id="leader"
                   disabled={true}
                   value="谭天一"
-                  style={{ width: '300px' }}
+                  style={{ width: '350px' }}
                 ></Input>
               </FormControl>
             </ListItem>
-            <ListItem>
+            <ListItem id="start-date-list-item">
               <FormControl>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -137,7 +256,7 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
                     margin="normal"
                     id="date-picker-inline"
                     label="选择任务开始日期"
-                    style={{ width: '300px' }}
+                    style={{ width: '350px' }}
                     value={taskForm['startDate']}
                     onChange={(value) =>
                       handleStartDateChange('startDate', value)
@@ -149,7 +268,7 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
                 </MuiPickersUtilsProvider>
               </FormControl>
             </ListItem>
-            <ListItem>
+            <ListItem id="end-date-list-item">
               <FormControl>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
@@ -159,7 +278,7 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
                     margin="normal"
                     id="date-picker-inline"
                     label="选择任务预计结束日期"
-                    style={{ width: '300px' }}
+                    style={{ width: '350px' }}
                     value={taskForm['endDate']}
                     onChange={(value) =>
                       handleStartDateChange('endDate', value)
@@ -171,27 +290,72 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
                 </MuiPickersUtilsProvider>
               </FormControl>
             </ListItem>
-            <ListItem>
-              <FormGroup row={false}>
-                {fakeMembers.map((memberName: string) => {
-                  return (
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          name={memberName}
-                          checked={taskForm['members'][memberName]}
-                          onChange={handleCheckMember}
-                          color="primary"
-                        ></Checkbox>
-                      }
-                      label={memberName}
-                    ></FormControlLabel>
-                  );
-                })}
-              </FormGroup>
+            <ListItem id="pick-leader-list-item">
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => setWhetherSelectLeader(true)}
+                startIcon={<FlagIcon color="primary" />}
+              >
+                选取负责人
+              </Button>
+              <SelectMemberDialog
+                whetherSelectMember={whetherSelectLeader}
+                handleWhetherSelectMember={handleWhetherSelectLeader}
+                handleCheckMember={handleCheckLeader}
+                members={taskForm.leaders}
+                handleCancelClick={handleCancelCheckLeaderClick}
+              ></SelectMemberDialog>
             </ListItem>
-            <ListItem>
-              <Button onClick={() => setWhetherSelectMember(true)}>
+
+            <ListItem
+              id="picked-leader-list-item"
+              button
+              onClick={handleWhetherOpenSelectedLeaders}
+            >
+              <ListItemText
+                primary="已选取负责人:"
+                secondary={
+                  <AvatarGroup max={2}>
+                    {Object.entries(taskForm.leaders)
+                      .filter((leader: [string, boolean], value) => leader[1])
+                      .map((leader: [string, boolean]) => (
+                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                      ))}
+                  </AvatarGroup>
+                }
+                style={{ fontSize: '14px' }}
+                primaryTypographyProps={{ variant: 'inherit' }}
+              ></ListItemText>
+              {whetherOpenSelectedLeaders ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <ListItem id="display-picked-leader-list-item">
+              <Collapse in={whetherOpenSelectedLeaders}>
+                {Object.entries(taskForm.leaders)
+                  .filter((leader: [string, boolean], value) => leader[1])
+                  .map((leader: [string, boolean]) => (
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                    >
+                      <Grid item>
+                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                      </Grid>
+                      <Grid item>{leader[0]}</Grid>
+                    </Grid>
+                  ))}
+              </Collapse>
+            </ListItem>
+            <Divider></Divider>
+            <ListItem id="pick-member-list-item">
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => setWhetherSelectMember(true)}
+                startIcon={<GroupIcon color="primary" />}
+              >
                 选取组员
               </Button>
               <SelectMemberDialog
@@ -199,10 +363,85 @@ export const CreateTaskDialog = (props: TaskPropsInterface) => {
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
                 members={taskForm.members}
+                handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
+            </ListItem>
+            <ListItem
+              id="picked-list-item"
+              button
+              onClick={handleWhetherOpenSelectedMembers}
+            >
+              <ListItemText
+                primary="已选取组员:"
+                secondary={
+                  <AvatarGroup max={4}>
+                    {Object.entries(taskForm.members)
+                      .filter((member: [string, boolean], value) => member[1])
+                      .map((member: [string, boolean]) => (
+                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                      ))}
+                  </AvatarGroup>
+                }
+                style={{ fontSize: '14px' }}
+                primaryTypographyProps={{ variant: 'inherit' }}
+              ></ListItemText>
+              {whetherOpenSelectedMembers ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <ListItem id="display-picked-list-item">
+              <Collapse in={whetherOpenSelectedMembers}>
+                {Object.entries(taskForm.members)
+                  .filter((member: [string, boolean], value) => member[1])
+                  .map((member: [string, boolean]) => (
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                    >
+                      <Grid item>
+                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                      </Grid>
+                      <Grid item>{member[0]}</Grid>
+                    </Grid>
+                  ))}
+              </Collapse>
+            </ListItem>
+            <Divider></Divider>
+            <ListItem id="task-escription-list-item">
+              <FormControl>
+                <InputLabel htmlFor="taskDescription">任务描述</InputLabel>
+                <Input
+                  id="taskDescription"
+                  onChange={handleTaskDescriptionChange}
+                  style={{ width: '350px' }}
+                ></Input>
+              </FormControl>
+              {/* <TextField
+                variant="outlined"
+                label="任务描述"
+                onChange={handleTaskDescriptionChange}
+                style={{ width: '350px' }}
+              ></TextField> */}
             </ListItem>
           </List>
         </DialogContentText>
+        <DialogActions style={{ justifyContent: 'flex-start' }}>
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={handleConfirmClick}
+          >
+            确定
+          </Button>
+          <Button
+            color="inherit"
+            variant="outlined"
+            style={{ color: '#9c2712', left: 0 }}
+            onClick={handleCancelClick}
+          >
+            取消
+          </Button>
+        </DialogActions>
       </DialogContent>
     </Dialog>
   );

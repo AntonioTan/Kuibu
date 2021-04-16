@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-10 21:38:32
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-10 23:49:52
+ * @LastEditTime: 2021-04-16 20:07:43
  */
 import {
   Button,
@@ -30,6 +30,7 @@ interface SelectMemberDialogInterface {
   handleWhetherSelectMember: (val: boolean) => void;
   handleCheckMember: (event: React.ChangeEvent<HTMLInputElement>) => void;
   members: { [index: string]: boolean };
+  handleCancelClick: () => void;
 }
 
 function PaperComponent(props: PaperProps) {
@@ -75,13 +76,20 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
         </FormGroup>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" color="primary">
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => props.handleWhetherSelectMember(false)}
+        >
           确定
         </Button>
         <Button
           style={{ color: 'red', borderColor: 'red' }}
           variant="outlined"
-          onClick={() => props.handleWhetherSelectMember(false)}
+          onClick={() => {
+            props.handleCancelClick();
+            props.handleWhetherSelectMember(false);
+          }}
         >
           取消
         </Button>
