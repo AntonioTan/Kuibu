@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-06 15:56:24
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-08 01:21:29
+ * @LastEditTime: 2021-04-13 01:06:47
  */
 import {
   Card,
@@ -62,10 +62,10 @@ export const ProjectsPage = () => {
   const [whetherCreateProject, setWhetherCreateProject] = useState(false);
   const [searched, setSearched] = useState<string>('');
   const requestSearch = (searchedVal: string) => {
-    const filteredProjects = originalProjectNames.filter((project) => {
+    const filteredProjectsNames = originalProjectNames.filter((project) => {
       return project.indexOf(searchedVal) != -1;
     });
-    setProjectNames(filteredProjects);
+    setProjectNames(filteredProjectsNames);
   };
   const cancelSearch = () => {
     setSearched('');
@@ -84,11 +84,8 @@ export const ProjectsPage = () => {
     projectName: string,
     projectDescription: string
   ) => {
-    var newProjectNames = projectNames;
-    newProjectNames.push(projectName);
-    projectDescriptions.push(projectDescription);
-    setProjectNames(newProjectNames);
-    setProjectDescriptions(projectDescriptions);
+    setProjectNames([...projectNames, projectName]);
+    setProjectDescriptions([...projectDescriptions, projectDescription]);
   };
 
   return (
@@ -157,6 +154,11 @@ export const ProjectsPage = () => {
                         ></ProjectCard>
                       </Grid>
                     ))}
+                    {projectNames.length % 2 == 1 ? (
+                      <Grid item style={{ width: '400px' }}></Grid>
+                    ) : (
+                      <></>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>

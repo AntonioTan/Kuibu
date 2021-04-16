@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 18:41:39
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-07 20:54:29
+ * @LastEditTime: 2021-04-12 16:44:04
  */
 
 import {
@@ -16,17 +16,46 @@ import {
   TextField,
 } from '@material-ui/core';
 import { AccountCircle, Lock } from '@material-ui/icons';
+import axios from 'axios';
 import { ipcRenderer } from 'electron';
-import React from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Flipped } from 'react-flip-toolkit';
+import { serverAddress } from '../../utils/globals';
 
 const useStyles = makeStyles((theme) => ({
   input: {
     color: '#000000',
   },
 }));
-const registerClick = () => {};
+
+interface registerInterface {
+  type: string;
+  userName: string;
+  pwd: string;
+  rePwd: string;
+}
 export const RegisterPanel = (props: any) => {
+  const [registerState, setRegisterState] = useState<registerInterface>({
+    type: 'UserWebRegisterMessage',
+    userName: '',
+    pwd: '',
+    rePwd: '',
+  });
+
+  const registerClick = () => {
+    const registerEntity = JSON.stringify(registerState);
+    console.log(registerEntity);
+    axios.post(serverAddress + '/web', registerEntity).then((res) => {
+      console.log(res);
+    });
+  };
+
+  const handleRegisterChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setRegisterState({
+      ...registerState,
+      [e.currentTarget.id]: e.currentTarget.value,
+    });
+  };
   const classes = useStyles();
   return (
     <Flipped flipId="test">
@@ -54,7 +83,7 @@ export const RegisterPanel = (props: any) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="input-with-icon-grid"
+                    id="userName"
                     fullWidth={true}
                     label="用户名"
                     placeholder="请输入用户名"
@@ -66,6 +95,7 @@ export const RegisterPanel = (props: any) => {
                     inputProps={{
                       className: classes.input,
                     }}
+                    onChange={handleRegisterChange}
                   />
                 </Grid>
               </Grid>
@@ -77,7 +107,7 @@ export const RegisterPanel = (props: any) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="input-with-icon-grid"
+                    id="pwd"
                     fullWidth={true}
                     type="password"
                     label="密码"
@@ -86,6 +116,7 @@ export const RegisterPanel = (props: any) => {
                     style={{
                       width: '250px',
                     }}
+                    onChange={handleRegisterChange}
                     inputProps={{
                       classes: {
                         input: {
@@ -104,7 +135,7 @@ export const RegisterPanel = (props: any) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="input-with-icon-grid"
+                    id="rePwd"
                     fullWidth={true}
                     type="password"
                     label="重复密码"
@@ -113,6 +144,7 @@ export const RegisterPanel = (props: any) => {
                     style={{
                       width: '250px',
                     }}
+                    onChange={handleRegisterChange}
                     inputProps={{
                       classes: {
                         input: {

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 22:00:06
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-03 20:48:31
+ * @LastEditTime: 2021-04-12 16:42:21
  */
 import purple from '@material-ui/core/colors/purple';
 import green from '@material-ui/core/colors/green';
@@ -28,3 +28,5 @@ const theme: Theme = createMuiTheme({
 });
 const services = ['service1', 'service2', 'service3', 'service4'];
 export { services, theme };
+const serverAddress = 'http://127.0.0.1:8080';
+export { serverAddress };

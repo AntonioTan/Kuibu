@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 14:36:41
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-05 23:47:46
+ * @LastEditTime: 2021-04-08 10:30:27
  */
 
 import React, { useEffect } from 'react';
@@ -367,7 +367,7 @@ export default function VerticalTabs() {
               key={text}
               onClick={(e) => {
                 console.log(e.currentTarget);
-                ipcRenderer.send('goHome');
+                ipcRenderer.send('goWelcome');
               }}
               style={{ height: 200 }}
             >

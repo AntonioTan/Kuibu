@@ -4,43 +4,51 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 15:14:25
+ * @LastEditTime: 2021-04-16 08:52:10
  */
 
 import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
+  Collapse,
   createStyles,
   CssBaseline,
-  Divider,
   Grid,
-  IconButton,
   makeStyles,
   Tab,
   Tabs,
   Theme,
   Typography,
+  withStyles,
 } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import CloseIcon from '@material-ui/icons/Close';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React from 'react';
+import ChatPanel from '../../Chat/ChatPanel';
+import { MemberPanel } from '../../Members/MemberPanel';
+import { TasksPanel } from '../../Tasks/TasksPanel';
 import { KuibuAppBar } from '../../utils/components/KuibuAppBar';
-import AvatarGroup from '@material-ui/lab/AvatarGroup';
+import MuiAccordion from '@material-ui/core/Accordion';
+import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
+import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import { scryRenderedDOMComponentsWithClass } from 'react-dom/test-utils';
+import { sessionData } from '../../utils/mock';
 
-function a11yProps(index: any) {
+function functionTabProps(index: any) {
   return {
-    id: `vertical-tab-${index}`,
+    value: index,
+    key: index,
+    id: `vertical-function-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`,
     style: { backgroundColor: '#12879c', color: '#d7ebed' },
   };
 }
 
-function avatarProps(index: any) {
-  return {};
+function sessionTabProps(index: number) {
+  return {
+    value: index,
+    key: index,
+    id: `vertical-session-tab-${index}`,
+    style: { backgroundColor: '#12879c', color: '#d7ebed' },
+  };
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -63,162 +71,218 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const Accordion = withStyles({
+  root: {
+    // border: '1px solid #76a8b7',
+    boxShadow: 'none',
+    '&:not(:last-child)': {
+      borderBottom: 0,
+    },
+    '&:before': {
+      display: 'none',
+    },
+    '&$expanded': {
+      margin: 'auto',
+    },
+  },
+  expanded: {},
+})(MuiAccordion);
+
+const AccordionSummary = withStyles({
+  root: {
+    backgroundColor: '#67a9b9',
+    minHeight: 40,
+    color: '#d7ebed',
+    '&$expanded': {
+      minHeight: 40,
+    },
+  },
+  content: {
+    flexGrow: 1,
+    '&$expanded': {
+      margin: '12px 0',
+    },
+  },
+  expanded: {
+    backgroundColor: '#12879c',
+  },
+})(MuiAccordionSummary);
+
+const AccordionDetails = withStyles((theme) => ({
+  root: {
+    padding: theme.spacing(0),
+    backgroundColor: '#8abdc9',
+  },
+}))(MuiAccordionDetails);
+const ws = new WebSocket('ws:127.0.0.1:8080/test?userID=003');
+const ws2 = new WebSocket('ws:127.0.0.1:8080/test?userID=004');
+ws.onopen = (e) => {
+  console.log(e);
+};
+ws.onmessage = (res) => {
+  console.log(res);
+};
+ws.onclose = (e) => {
+  const entity = "{'type': 'UserWsCloseMessage', 'userID': '003'}";
+};
+
+ws2.onopen = (e) => {
+  const entity = {
+    type: 'UserWsInviteProjectMessage',
+    senderID: '003',
+    inviteUserID: '004',
+    projectID: '001',
+    projectName: 'Hello World',
+  };
+  console.log(JSON.stringify(entity));
+  ws.send(JSON.stringify(entity));
+};
+ws2.onmessage = (e) => {
+  console.log(e);
+};
+
+// const functionMap: { [index: string]: JSX.Element } = {
+//   'vertical-tab-0': <TasksPanel></TasksPanel>,
+//   'vertical-tab-1': <ChatPanel></ChatPanel>,
+//   'vertical-tab-2': <div></div>,
+//   'vertical-tab-3': <MemberPanel></MemberPanel>,
+//   'vertical-tab-4': <div></div>,
+//   'vertical-tab-5': <div></div>,
+//   'vertical-tab-6': <div></div>,
+//   'vertical-tab-7': <div></div>,
+// };
 export const HomePage = () => {
-  const classes = useStyles();
-  const [value, setValue] = React.useState(0);
-  const handleChange = (event: any, newValue: number) => {
-    setValue(newValue);
-    // event.currentTarget.style.backgroundColor = '#0f7385';
+  const [functionTabValue, setFunctionTabValue] = React.useState<
+    number | boolean
+  >(0);
+  const [sessionTabValue, setSessionTabValue] = React.useState(0);
+  const [discussionTabExpanded, setDiscussionTabExpanded] = React.useState(
+    false
+  );
+  const [functionID, setFunctionID] = React.useState('vertical-tab-0');
+  const handleFunctionTabChange = (event: any, newValue: number) => {
+    setFunctionID(event.currentTarget.id);
+    if (typeof newValue === typeof 1) {
+      setDiscussionTabExpanded(false);
+      setFunctionTabValue(newValue);
+    } else {
+      setFunctionTabValue(false);
+      setDiscussionTabExpanded(!discussionTabExpanded);
+    }
+  };
+  const handleSessionTabChange = (event: any, newValue: number) => {
+    setSessionTabValue(newValue);
+  };
+
+  const discussionTab = (
+    <Accordion expanded={discussionTabExpanded}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon style={{ color: '#d7ebed' }} />}
+        aria-controls="panel2a-content"
+        id="vertical-function-tab-1"
+      >
+        <Typography
+          variant="inherit"
+          style={{
+            marginLeft: '35px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          }}
+        >
+          我的讨论
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Tabs
+          orientation="vertical"
+          value={sessionTabValue}
+          variant="fullWidth"
+          onChange={handleSessionTabChange}
+          aria-label="Vertical tabs sessions"
+          style={{ width: '150px' }}
+        >
+          {sessionData.map((sessionName, index) => {
+            return <Tab label={sessionName} {...sessionTabProps(index)} />;
+          })}
+        </Tabs>
+      </AccordionDetails>
+    </Accordion>
+  );
+  const getFunction = (id: String) => {
+    if (id === 'vertical-function-tab-0') {
+      return <TasksPanel></TasksPanel>;
+    } else if (id === 'vertical-function-tab-1') {
+      return <ChatPanel></ChatPanel>;
+    } else if (id === 'vertical-function-tab-3') {
+      return <MemberPanel></MemberPanel>;
+    } else {
+      return <div></div>;
+    }
+    return;
   };
   return (
     <div>
       <CssBaseline>
-        <Grid container direction="column" alignItems="flex-start">
+        <Grid
+          container
+          direction="column"
+          // alignItems="flex-start"
+        >
+          {/* <Grid item> */}
+          <KuibuAppBar></KuibuAppBar>
+          {/* </Grid> */}
           <Grid item>
-            <KuibuAppBar></KuibuAppBar>
-          </Grid>
-          <Grid container direction="row" spacing={2}>
-            <Grid item style={{ marginTop: '63px' }}>
-              <Grid container direction="row" alignItems="flex-start">
-                <Grid item>
-                  <div>
-                    <Tabs
-                      orientation="vertical"
-                      variant="fullWidth"
-                      value={value}
-                      onChange={handleChange}
-                      aria-label="Vertical tabs example"
-                      // className={classes.tabs}
-                    >
-                      <Tab label="项目" {...a11yProps(0)} />
-                      <Tab label="讨论" {...a11yProps(1)} />
-                      <Tab label="" {...a11yProps(2)} />
-                      <Tab label="Item Four" {...a11yProps(3)} />
-                      <Tab label="Item Five" {...a11yProps(4)} />
-                      <Tab label="Item Six" {...a11yProps(5)} />
-                      <Tab label="Item Seven" {...a11yProps(6)} />
-                    </Tabs>
-                  </div>
-                </Grid>
-                <Grid item>
-                  <div
+            <Grid
+              container
+              direction="row"
+              spacing={2}
+              style={{ width: '1000px', height: '600px' }}
+            >
+              <Grid item>
+                <Grid container direction="row" alignItems="flex-start">
+                  <Grid
+                    item
                     style={{
-                      width: '2px',
-                      height: '675px',
-                      backgroundColor: '#d7ebed',
+                      marginTop: '63px',
+                      width: '150px',
                       position: 'fixed',
                     }}
-                  ></div>
+                  >
+                    <div>
+                      <Tabs
+                        orientation="vertical"
+                        value={functionTabValue}
+                        variant="fullWidth"
+                        onChange={handleFunctionTabChange}
+                        aria-label="Vertical tabs functionality"
+                        // className={classes.tabs}
+                      >
+                        <Tab label="任务列表" {...functionTabProps(0)} />
+                        {discussionTab}
+                        <Tab label="我的任务" {...functionTabProps(2)} />
+                        <Tab label="小组成员" {...functionTabProps(3)} />
+                        <Tab label="日程安排" {...functionTabProps(4)} />
+                        <Tab label="项目甘特图" {...functionTabProps(5)} />
+                        <Tab label="总体进度" {...functionTabProps(6)} />
+                      </Tabs>
+                    </div>
+                  </Grid>
+                  <Grid item>
+                    <div
+                      style={{
+                        width: '2px',
+                        height: '675px',
+                        marginTop: '70px',
+                        marginLeft: '150px',
+                        backgroundColor: '#d7ebed',
+                        position: 'fixed',
+                      }}
+                    ></div>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-            <Grid item style={{ marginTop: '70px' }} zeroMinWidth>
-              <Grid container alignItems="flex-start" spacing={2}>
-                <Grid item style={{ width: '400px' }}>
-                  <Card>
-                    <Button>
-                      <CardHeader
-                        avatar={<Avatar aria-label="recipe">R</Avatar>}
-                        title="Shrimp and Chorizo Paella"
-                        subheader="Created on September 14, 2016"
-                        style={{ textAlign: 'left' }}
-                      />
-                    </Button>
-                  </Card>
-                  <Card>
-                    <CardHeader
-                      avatar={<Avatar aria-label="test-project">任</Avatar>}
-                      title="任务管理开发任务"
-                      subheader="创建于2020年2月22日"
-                      style={{ textAlign: 'left' }}
-                      action={
-                        <IconButton aria-label="close">
-                          <CloseIcon />
-                        </IconButton>
-                      }
-                    ></CardHeader>
-                    <CardContent>
-                      <Grid
-                        container
-                        direction="column"
-                        justify="center"
-                        alignItems="flex-start"
-                        spacing={2}
-                      >
-                        <Grid item>
-                          <Grid
-                            container
-                            direction="row"
-                            justify="flex-start"
-                            alignItems="center"
-                            spacing={2}
-                          >
-                            <Grid item>
-                              <div style={{ display: 'flex' }}>
-                                <AvatarGroup max={4}>
-                                  <Avatar
-                                    style={{ backgroundColor: 'orange' }}
-                                    className={classes.avatarSmall}
-                                  >
-                                    T
-                                  </Avatar>
-                                  <Avatar
-                                    style={{ backgroundColor: 'green' }}
-                                    className={classes.avatarSmall}
-                                  >
-                                    H
-                                  </Avatar>
-                                  <Avatar
-                                    style={{ backgroundColor: 'blue' }}
-                                    className={classes.avatarSmall}
-                                  >
-                                    E
-                                  </Avatar>
-                                </AvatarGroup>
-                              </div>
-                            </Grid>
-                            <Grid item>
-                              <Typography style={{ display: 'flex' }}>
-                                创建人：谭天一
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                        <Grid item>
-                          <Divider variant="middle" />
-                        </Grid>
-                        <Grid item>
-                          <Typography>
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                            该项目是一个测试项目用于开发任务管理信息系统，欢迎各位使用。
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item>
-                  <Card>
-                    <CardHeader
-                      avatar={<Avatar aria-label="recipe">R</Avatar>}
-                      action={
-                        <IconButton aria-label="settings">
-                          <MoreVertIcon />
-                        </IconButton>
-                      }
-                      title="Shrimp and Chorizo Paella"
-                      subheader="September 14, 2016"
-                    />
-                  </Card>
-                </Grid>
+              <Grid item style={{ marginLeft: '180px', marginTop: '70px' }}>
+                {getFunction(functionID)}
               </Grid>
             </Grid>
           </Grid>

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:38:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 00:08:11
+ * @LastEditTime: 2021-04-08 12:51:30
  */
 
 import {
@@ -20,9 +20,9 @@ import {
   useTheme,
 } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { KuibuTitle } from './KuibuTitle';
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
@@ -43,6 +43,9 @@ export const KuibuAppBar = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+  const handleGoProjects = () => {
+    ipcRenderer.send('goProjects');
   };
   return (
     <div>
@@ -68,8 +71,10 @@ export const KuibuAppBar = () => {
                 open={openProfile}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-                <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+                <MenuItem onClick={handleMenuClose}>我的账户</MenuItem>
+                <MenuItem onClick={handleGoProjects}>我的项目</MenuItem>
+                <MenuItem onClick={handleMenuClose}>我的设置</MenuItem>
+                <MenuItem onClick={handleMenuClose}>退出跬步</MenuItem>
               </Menu>
             </div>
           )}

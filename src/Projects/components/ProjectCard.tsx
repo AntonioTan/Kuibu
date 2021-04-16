@@ -17,7 +17,7 @@ import {
 import React, { useState } from 'react';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { ipcRenderer } from 'electron/renderer';
+import { ipcRenderer } from 'electron';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -66,7 +66,7 @@ export const ProjectCard = (props: any) => {
     setContentOpen(!contentOpen);
   };
   const handleEnterProject = () => {
-    ipcRenderer.send('goHome');
+    ipcRenderer.send('goMain');
   };
   return (
     <div>

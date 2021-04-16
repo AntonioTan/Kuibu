@@ -86,11 +86,8 @@ const createWindow = async () => {
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  ipcMain.on('goHome', function (_event: any) {
-    if (mainWindow != null)
-      mainWindow.loadFile('index.html', {
-        // hash: '/',
-      });
+  ipcMain.on('goWelcome', function (_event: any) {
+    if (mainWindow != null) mainWindow.loadFile('index.html', {});
   });
   ipcMain.on('goMain', function (_event: any) {
     if (mainWindow != null)

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-22 14:48:48
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-03-22 15:42:57
+ * @LastEditTime: 2021-04-15 23:33:28
  */
 
 import {
@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function ProfileBadge() {
+export default function ProfileBadge(props: any) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -72,7 +72,7 @@ export default function ProfileBadge() {
         }}
         variant="dot"
       >
-        <Avatar alt="Remy Sharp" src="/broken-image.jpg" />
+        <Avatar alt={props.senderName} src="/broken-image.jpg" />
       </StyledBadge>
     </div>
   );
