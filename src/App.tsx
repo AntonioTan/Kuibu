@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-08 09:04:18
+ * @LastEditTime: 2021-04-17 23:51:56
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
@@ -20,6 +20,7 @@ import Home from './Home/index';
 import { LoginPage } from './Login/LoginPage';
 import { HomePage } from './Home/pages/HomePage';
 import { ProjectsPage } from './Projects/ProjectsPage';
+import UserContextProviderComponent from './utils/components/UserContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -100,7 +101,58 @@ const Login = () => {
   );
 };
 
+interface InitialWebSocketContextInterface {
+  userID: string;
+  ws: WebSocket;
+}
+
+interface WebSocketContextInterface {
+  webSocket: InitialWebSocketContextInterface;
+  handleLoginSuccess: (userID: string) => void;
+}
 export default function App() {
+  const functionTemplate = () => {};
+
+  const userObjectContext = {
+    name: 'John Snow',
+    email: 'john.snow@thewall.north',
+    status: 'Winter is coming',
+    updateStatus: functionTemplate,
+  };
+
+  const UserContext = React.createContext(userObjectContext);
+  const [context, setContext] = React.useState(userObjectContext);
+  const updateContext = (contextUpdates = {}) =>
+    setContext((currentContext) => ({ ...currentContext, ...contextUpdates }));
+
+  React.useEffect(() => {
+    if (context?.updateStatus === functionTemplate) {
+      updateContext({
+        updateStatus: (value: string) => updateContext({ status: value }),
+      });
+    }
+  }, [context?.updateStatus]);
+
+  const [initialWSContext, setInitialWSContext] = React.useState<
+    InitialWebSocketContextInterface
+  >({
+    userID: '',
+    ws: new WebSocket('ws:/127.0.0.1:7070/'),
+  });
+
+  const handleLoginSuccess = (userID: string) => {
+    setInitialWSContext({
+      ...initialWSContext,
+      // userID: userID,
+      ['ws']: new WebSocket(`ws:/127.0.0.1:8080/ws?userID=${userID}`),
+    });
+  };
+
+  const WebSocketContext = React.createContext<WebSocketContextInterface>({
+    webSocket: initialWSContext,
+    handleLoginSuccess: handleLoginSuccess,
+  });
+
   return (
     <Router>
       <Switch>

@@ -18,6 +18,13 @@ import React, { useState } from 'react';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { ipcRenderer } from 'electron';
+import { ProjectInterface } from './CreateProjectDialog';
+import { theme } from '../../utils/globals';
+
+interface ProjectCardInterface {
+  project: ProjectInterface;
+  index: number;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -59,7 +66,7 @@ const getBackgroundColor = (index: number) =>
     .slice(index % colorList.length, (index % colorList.length) + 1)
     .pop();
 
-export const ProjectCard = (props: any) => {
+export const ProjectCard = (props: ProjectCardInterface) => {
   const [contentOpen, setContentOpen] = useState(false);
   const classes = useStyles();
   const handleContentOpen = () => {
@@ -79,10 +86,11 @@ export const ProjectCard = (props: any) => {
                 backgroundColor: getBackgroundColor(props.index),
               }}
             >
-              {props.name.substring(0, 1)}
+              {props.project.projectName.substring(0, 1)}
             </Avatar>
           }
-          title={props.name}
+          title={props.project.projectName}
+          // TODO 需要加上创建日期
           subheader="创建于2020年2月22日"
           style={{ textAlign: 'left' }}
         ></CardHeader>
@@ -105,8 +113,25 @@ export const ProjectCard = (props: any) => {
                 >
                   <Grid item>
                     <div style={{ display: 'flex' }}>
-                      <AvatarGroup max={4}>
-                        <Avatar
+                      <AvatarGroup
+                        max={4}
+                        classes={{ avatar: classes.avatarSmall }}
+                      >
+                        {Object.entries(props.project.members)
+                          .filter((member: [string, boolean]) => {
+                            return member[1];
+                          })
+                          .map((member: [string, boolean]) => {
+                            return (
+                              <Avatar
+                                alt={member[0]}
+                                className={classes.avatarSmall}
+                              >
+                                {member[0].slice(0, 1)}
+                              </Avatar>
+                            );
+                          })}
+                        {/* <Avatar
                           style={{ backgroundColor: 'orange' }}
                           className={classes.avatarSmall}
                         >
@@ -123,22 +148,21 @@ export const ProjectCard = (props: any) => {
                           className={classes.avatarSmall}
                         >
                           E
-                        </Avatar>
+                        </Avatar> */}
                       </AvatarGroup>
                     </div>
                   </Grid>
                   <Grid item>
                     <Typography style={{ display: 'flex' }}>
+                      {/* TODO 这里需要根据createUserID去找到userName */}
                       创建人：谭天一
                     </Typography>
                   </Grid>
                 </Grid>
               </Grid>
+              <Divider></Divider>
               <Grid item>
-                <Divider variant="middle" />
-              </Grid>
-              <Grid item>
-                <Typography>{props.description}</Typography>
+                <Typography>{props.project.description}</Typography>
               </Grid>
             </Grid>
           </CardContent>

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 19:50:03
+ * @LastEditTime: 2021-04-18 00:11:01
  */
 
 import {
@@ -31,6 +31,7 @@ import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { scryRenderedDOMComponentsWithClass } from 'react-dom/test-utils';
 import { sessionData } from '../../utils/mock';
+import { UserContext } from '../../utils/components/UserContext';
 
 function functionTabProps(index: any) {
   return {
@@ -114,8 +115,8 @@ const AccordionDetails = withStyles((theme) => ({
     backgroundColor: '#8abdc9',
   },
 }))(MuiAccordionDetails);
-const ws = new WebSocket('ws:127.0.0.1:8080/test?userID=003');
-const ws2 = new WebSocket('ws:127.0.0.1:8080/test?userID=004');
+const ws = new WebSocket('ws:127.0.0.1:8080/ws?userID=003');
+const ws2 = new WebSocket('ws:127.0.0.1:8080/ws?userID=004');
 ws.onopen = (e) => {
   console.log(e);
 };
@@ -152,6 +153,10 @@ ws2.onmessage = (e) => {
 //   'vertical-tab-7': <div></div>,
 // };
 export const HomePage = () => {
+  const context = React.useContext(UserContext);
+  React.useEffect(() => {
+    context.updateStatus('Hello');
+  }, []);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean
   >(0);

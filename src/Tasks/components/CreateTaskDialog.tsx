@@ -42,12 +42,15 @@ import FlagIcon from '@material-ui/icons/Flag';
 import GroupIcon from '@material-ui/icons/Group';
 
 export interface TaskInterface {
+  taskID: string;
+  parentID: string;
   taskName: string;
   startDate?: Date;
   endDate?: Date;
   description: string;
   leaders: { [key: string]: boolean };
   members: { [key: string]: boolean };
+  childrenList: Array<TaskInterface>;
 }
 
 interface CreateTaskPropsInterface {
@@ -63,12 +66,15 @@ fakeMembers.map(
 
 export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   const [taskForm, setTaskForm] = useState<TaskInterface>({
+    taskID: '',
+    parentID: '',
     taskName: '',
     startDate: new Date(),
     endDate: new Date(),
     description: '',
     leaders: originalFakeSelectMemberMap,
     members: originalFakeSelectMemberMap,
+    childrenList: [],
   });
   const [whetherOpenSelectedMembers, setWhetherOpenSelectedMembers] = useState<
     boolean
@@ -186,7 +192,20 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   };
 
   const handleConfirmClick = () => {
-    props.handleAddTaskList(taskForm);
+    // TODO 这里需要从后端获取Task id再更新新的task
+    const unchangedTaskForm = Object.assign({}, taskForm);
+    var recoverMembers: { [key: string]: boolean } = {};
+    var recoverLeaders: { [key: string]: boolean } = {};
+    Object.entries(taskForm.leaders).map((leader: [string, boolean]) => {
+      recoverMembers[leader[0]] = false;
+      recoverLeaders[leader[0]] = false;
+    });
+    setTaskForm({
+      ...taskForm,
+      ['members']: recoverMembers,
+      ['leaders']: recoverLeaders,
+    });
+    props.handleAddTaskList(unchangedTaskForm);
     props.handleWhetherCreateTaskPanel(false);
   };
 
@@ -407,7 +426,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
               </Collapse>
             </ListItem>
             <Divider></Divider>
-            <ListItem id="task-escription-list-item">
+            <ListItem id="task-description-list-item">
               <FormControl>
                 <InputLabel htmlFor="taskDescription">任务描述</InputLabel>
                 <Input

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 09:31:10
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 19:45:38
+ * @LastEditTime: 2021-04-16 23:43:36
  */
 import {
   Button,
@@ -113,7 +113,10 @@ export const TasksPanel = () => {
   };
 
   const handleAddTaskList = (newTask: TaskInterface) => {
-    taskList.push(newTask);
+    var newTaskList: Array<TaskInterface> = [];
+    Object.assign(newTaskList, taskList);
+    newTaskList.push(newTask);
+    setTaskList(newTaskList);
   };
 
   function PaperComponent() {
@@ -165,10 +168,6 @@ export const TasksPanel = () => {
           handleWhetherCreateTaskPanel={handleWhetherCreateTaskPanel}
           handleAddTaskList={handleAddTaskList}
         ></CreateTaskDialog>
-        <EditTaskDialog
-          whetherEditTask={whetherEditTask}
-          handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
-        ></EditTaskDialog>
         <Grid item>
           <Grid container direction="row" justify="space-evenly" spacing={2}>
             {taskList.map((task, index) => {
@@ -178,6 +177,11 @@ export const TasksPanel = () => {
                     openEditTaskPanel={openEditTaskPanel}
                     targetTask={task}
                   ></TaskCard>
+                  <EditTaskDialog
+                    whetherEditTask={whetherEditTask}
+                    handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
+                    targetTaskForm={task}
+                  ></EditTaskDialog>
                 </Grid>
               );
             })}
