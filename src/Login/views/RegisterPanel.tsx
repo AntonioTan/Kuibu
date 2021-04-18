@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 18:41:39
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-12 16:44:04
+ * @LastEditTime: 2021-04-19 00:37:53
  */
 
 import {
@@ -31,15 +31,15 @@ const useStyles = makeStyles((theme) => ({
 interface registerInterface {
   type: string;
   userName: string;
-  pwd: string;
-  rePwd: string;
+  passWord: string;
+  rePassWord: string;
 }
 export const RegisterPanel = (props: any) => {
   const [registerState, setRegisterState] = useState<registerInterface>({
     type: 'UserWebRegisterMessage',
     userName: '',
-    pwd: '',
-    rePwd: '',
+    passWord: '',
+    rePassWord: '',
   });
 
   const registerClick = () => {
@@ -62,7 +62,6 @@ export const RegisterPanel = (props: any) => {
       <Paper
         elevation={3}
         style={{
-          marginRight: '100px',
           width: '400px',
           height: '370px',
         }}
@@ -107,7 +106,7 @@ export const RegisterPanel = (props: any) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="pwd"
+                    id="passWord"
                     fullWidth={true}
                     type="password"
                     label="密码"
@@ -135,7 +134,7 @@ export const RegisterPanel = (props: any) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    id="rePwd"
+                    id="rePassWord"
                     fullWidth={true}
                     type="password"
                     label="重复密码"

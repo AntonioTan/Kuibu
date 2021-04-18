@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-01 18:59:31
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-06 00:02:17
+ * @LastEditTime: 2021-04-19 00:35:24
  */
 import {
   AppBar,
@@ -114,7 +114,7 @@ export const LoginPage = () => {
                 <Grid item></Grid>
                 <Flipper flipKey={whetherRegister} spring="veryGentle">
                   <Flipped flipId="tt">
-                    <Grid item style={{ marginRight: '100px' }}>
+                    <Grid item>
                       <Button
                         size="large"
                         variant="outlined"
