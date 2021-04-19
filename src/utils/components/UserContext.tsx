@@ -4,19 +4,25 @@
  * @Autor: Tabbit
  * @Date: 2021-04-17 23:31:17
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-18 14:35:55
+ * @LastEditTime: 2021-04-19 13:28:21
  */
 import React from 'react';
 
-const functionTemplate = (val: string) => {};
+const stringFunctionTemplate = (key: string, val: string) => {};
+const listFunctionTemplate = (key: string, val: Array<string>) => {};
 const changeWebSocket = (address: string) => {};
 
 const userObjectContext = {
-  name: 'John Snow',
-  email: 'john.snow@thewall.north',
+  userID: '',
+  userName: '',
   status: 'Winter is coming',
-  updateStatus: functionTemplate,
+  currentProjectID: '',
+  friendIDList: [],
+  sessionIDList: [],
+  projectIDList: [],
   webSocket: new WebSocket('ws:/127.0.0.1:7070/'),
+  updateStringField: stringFunctionTemplate,
+  updateListField: listFunctionTemplate,
   updateWebSocket: changeWebSocket,
 };
 
@@ -29,14 +35,17 @@ export default function UserContextProviderComponent(props: any) {
     setContext((currentContext) => ({ ...currentContext, ...contextUpdates }));
 
   React.useEffect(() => {
-    if (context?.updateStatus === functionTemplate) {
+    if (context?.updateStringField === stringFunctionTemplate) {
       updateContext({
-        updateStatus: (value: string) => updateContext({ status: value }),
+        updateStringField: (key: string, value: string) =>
+          updateContext({ [key]: value }),
+        updateListField: (key: string, value: Array<string>) =>
+          updateContext({ [key]: value }),
         updateWebSocket: (address: string) =>
           updateContext({ WebSocket: new WebSocket(address) }),
       });
     }
-  }, [context?.updateStatus]);
+  }, [context?.updateStringField]);
 
   return (
     <UserContext.Provider value={context}>

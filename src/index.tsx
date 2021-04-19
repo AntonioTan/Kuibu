@@ -12,7 +12,7 @@ import { ConfigContext } from 'antd/lib/config-provider';
 import React from 'react';
 import { render } from 'react-dom';
 import App from './App';
-import ProviderComponent from './utils/components/UserContext';
+import UserContextProviderComponent from './utils/components/UserContext';
 import { menuContext } from './utils/context';
 
 interface InitialWebSocketContextInterface {
@@ -63,12 +63,12 @@ const theme = createMuiTheme({
 });
 // render(<DatePicker />, document.getElementById('root'));
 render(
-  <ProviderComponent>
+  <UserContextProviderComponent>
     <menuContext.Provider value={services}>
       <ThemeProvider theme={theme}>
         <App />
       </ThemeProvider>
     </menuContext.Provider>
-  </ProviderComponent>,
+  </UserContextProviderComponent>,
   document.getElementById('root')
 );

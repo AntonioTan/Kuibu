@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-06 15:56:24
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-17 17:04:36
+ * @LastEditTime: 2021-04-19 17:08:48
  */
 import {
   Card,
@@ -18,7 +18,7 @@ import {
   Input,
   InputLabel,
 } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { KuibuAppBar } from '../utils/components/KuibuAppBar';
 import { ProjectCard } from './components/ProjectCard';
 import SearchBar from 'material-ui-search-bar';
@@ -29,7 +29,23 @@ import {
   CreateProjectDialog,
   ProjectInterface,
 } from './components/CreateProjectDialog';
-import { myUserID } from '../utils/globals';
+import { myUserID, serverAddress } from '../utils/globals';
+import { UserContext } from '../utils/components/UserContext';
+import axios from 'axios';
+
+interface UserWebBasicProjectsInfoMessage {
+  type: string;
+  projectID: string;
+}
+
+interface ProjectBasicInfoInterface {
+  projectID: string;
+  projectName: string;
+  createUserName: string;
+  description: string;
+  startDate: string;
+  userMap: { [key: string]: string };
+}
 
 var originalProjectNames: string[] = [
   '任务管理系统开发',
@@ -59,10 +75,55 @@ for (const i of originalProjectNames) {
   );
 }
 
-const ws = new WebSocket(`ws:127.0.0.1:8080/ws?userID=${myUserID}`);
+// const ws = new WebSocket(`ws:127.0.0.1:8080/ws?userID=${myUserID}`);
 
 export const ProjectsPage = () => {
+  const userContext = useContext(UserContext);
   const [projectList, setProjectList] = useState<Array<ProjectInterface>>([]);
+  console.log(projectList);
+  useEffect(() => {
+    var newProjectList: Array<ProjectInterface> = [];
+    axios
+      .all(
+        userContext.projectIDList.map((projectID) => {
+          console.log(projectID);
+          const userWebBasicProjectsInfoMessage: UserWebBasicProjectsInfoMessage = {
+            type: 'UserWebBasicProjectInfoMessage',
+            projectID: projectID,
+          };
+          return axios.post(
+            `${serverAddress}/web`,
+            JSON.stringify(userWebBasicProjectsInfoMessage)
+          );
+        })
+      )
+      .then((results) => {
+        results.map((res) => {
+          const projectBasicInfo: ProjectBasicInfoInterface =
+            res.data.projectBasicInfo;
+          const selectMemberIDs: { [key: string]: boolean } = {};
+          Object.entries(projectBasicInfo.userMap).map(
+            (user: [string, string]) => {
+              selectMemberIDs[user[0]] = false;
+            }
+          );
+          console.log(projectBasicInfo.startDate);
+          const newProject: ProjectInterface = {
+            projectID: projectBasicInfo.projectID,
+            projectName: projectBasicInfo.projectName,
+            createUserName: projectBasicInfo.createUserName,
+            description: projectBasicInfo.description,
+            startDate: new Date(projectBasicInfo.startDate),
+            selectMemberIDs: selectMemberIDs,
+            memberMap: projectBasicInfo.userMap,
+          };
+          newProjectList = [...newProjectList, newProject];
+          setProjectList(newProjectList);
+        });
+      });
+    // console.log('tty', newProjectList);
+    // setProjectList(newProjectList);
+  }, []);
 
   const [projectNames, setProjectNames] = useState(originalProjectNames);
   const [projectDescriptions, setProjectDescriptions] = useState(
@@ -80,6 +141,7 @@ export const ProjectsPage = () => {
     setSearched('');
     requestSearch(searched);
   };
+
   const handleCloseProjectPanel = () => {
     setWhetherCreateProject(false);
   };
@@ -160,13 +222,6 @@ export const ProjectsPage = () => {
               ) : (
                 <div></div>
               )}
-              {/* {projectNames.map((name, index) => (
-                    ))}
-                    {projectNames.length % 2 == 1 ? (
-                      <Grid item style={{ width: '400px' }}></Grid>
-                    ) : (
-                      <></>
-                    )} */}
               <CreateProjectDialog
                 whetherCreateProject={whetherCreateProject}
                 handleWhetherCreateProjectDialog={

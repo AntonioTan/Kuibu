@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 00:12:37
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-17 15:23:32
+ * @LastEditTime: 2021-04-19 13:49:55
  */
 
 import {
@@ -40,9 +40,11 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle';
 export interface ProjectInterface {
   projectID: string;
   projectName: string;
-  createUserID: string;
+  createUserName: string;
   description: string;
-  members: { [key: string]: boolean };
+  startDate: Date;
+  selectMemberIDs: { [key: string]: boolean };
+  memberMap: { [key: string]: string };
 }
 
 interface CreateProjectPropsInterface {
@@ -61,9 +63,11 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
   const [projectForm, setProjectForm] = useState<ProjectInterface>({
     projectID: '',
     projectName: '',
-    createUserID: '',
+    createUserName: '',
     description: '',
-    members: originalFakeSelectMemberMap,
+    startDate: new Date(),
+    selectMemberIDs: originalFakeSelectMemberMap,
+    memberMap: {},
   });
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -93,8 +97,8 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
     console.log(e.currentTarget.name);
     setProjectForm({
       ...projectForm,
-      ['members']: {
-        ...projectForm['members'],
+      ['selectMemberIDs']: {
+        ...projectForm['selectMemberIDs'],
         [e.currentTarget.name]: e.currentTarget.checked,
       },
     });
@@ -102,12 +106,14 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
 
   const handleCancelCheckMemberClick = () => {
     var newMembers: { [key: string]: boolean } = {};
-    Object.entries(projectForm['members']).map((member: [string, boolean]) => {
-      newMembers[member[0]] = false;
-    });
+    Object.entries(projectForm['selectMemberIDs']).map(
+      (member: [string, boolean]) => {
+        newMembers[member[0]] = false;
+      }
+    );
     setProjectForm({
       ...projectForm,
-      ['members']: newMembers,
+      ['selectMemberIDs']: newMembers,
     });
   };
 
@@ -123,12 +129,14 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
   const handleConfirmClick = () => {
     const unchangedProjectForm = Object.assign({}, projectForm);
     var recoverMembers: { [key: string]: boolean } = {};
-    Object.entries(projectForm.members).map((member: [string, boolean]) => {
-      recoverMembers[member[0]] = false;
-    });
+    Object.entries(projectForm.selectMemberIDs).map(
+      (member: [string, boolean]) => {
+        recoverMembers[member[0]] = false;
+      }
+    );
     setProjectForm({
       ...projectForm,
-      ['members']: recoverMembers,
+      ['selectMemberIDs']: recoverMembers,
     });
     props.handleAddProjectList(unchangedProjectForm);
     props.handleWhetherCreateProjectDialog(false);
@@ -208,7 +216,7 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                members={projectForm.members}
+                members={projectForm.selectMemberIDs}
                 handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -217,7 +225,7 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 primary="已选取组员:"
                 secondary={
                   <AvatarGroup max={4}>
-                    {Object.entries(projectForm.members)
+                    {Object.entries(projectForm.selectMemberIDs)
                       .filter((member: [string, boolean], value) => member[1])
                       .map((member: [string, boolean]) => (
                         <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>

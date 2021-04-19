@@ -67,6 +67,7 @@ const getBackgroundColor = (index: number) =>
     .pop();
 
 export const ProjectCard = (props: ProjectCardInterface) => {
+  console.log(props.project.startDate);
   const [contentOpen, setContentOpen] = useState(false);
   const classes = useStyles();
   const handleContentOpen = () => {
@@ -91,7 +92,7 @@ export const ProjectCard = (props: ProjectCardInterface) => {
           }
           title={props.project.projectName}
           // TODO 需要加上创建日期
-          subheader="创建于2020年2月22日"
+          subheader={`${props.project.startDate.toLocaleDateString()}`}
           style={{ textAlign: 'left' }}
         ></CardHeader>
         <Collapse in={contentOpen}>
@@ -117,17 +118,20 @@ export const ProjectCard = (props: ProjectCardInterface) => {
                         max={4}
                         classes={{ avatar: classes.avatarSmall }}
                       >
-                        {Object.entries(props.project.members)
-                          .filter((member: [string, boolean]) => {
-                            return member[1];
+                        {Object.entries(props.project.selectMemberIDs)
+                          .filter((memberID: [string, boolean]) => {
+                            return memberID[1];
                           })
-                          .map((member: [string, boolean]) => {
+                          .map((memberID: [string, boolean]) => {
                             return (
                               <Avatar
-                                alt={member[0]}
+                                alt={props.project.memberMap[memberID[0]]}
                                 className={classes.avatarSmall}
                               >
-                                {member[0].slice(0, 1)}
+                                {props.project.memberMap[memberID[0]].slice(
+                                  0,
+                                  1
+                                )}
                               </Avatar>
                             );
                           })}
@@ -155,7 +159,7 @@ export const ProjectCard = (props: ProjectCardInterface) => {
                   <Grid item>
                     <Typography style={{ display: 'flex' }}>
                       {/* TODO 这里需要根据createUserID去找到userName */}
-                      创建人：谭天一
+                      {`创建人：${props.project.createUserName}`}
                     </Typography>
                   </Grid>
                 </Grid>

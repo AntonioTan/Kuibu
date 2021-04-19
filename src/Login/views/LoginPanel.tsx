@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-19 00:42:35
+ * @LastEditTime: 2021-04-19 15:37:37
  */
 import {
   Button,
@@ -20,12 +20,15 @@ import { AccountCircle, Lock } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useContext, useState } from 'react';
 import { Flipped } from 'react-flip-toolkit';
 import {
   AlertDialog,
   AlertDialogInterface,
 } from '../../utils/components/AlertDialog';
+import UserContextProviderComponent, {
+  UserContext,
+} from '../../utils/components/UserContext';
 import { serverAddress } from '../../utils/globals';
 
 interface LoginInterface {
@@ -38,10 +41,31 @@ interface SnackBarInterface {
   snackBarContent: string;
 }
 
-interface WebReplyLoginInterface {
+interface UserWebLoginMessage {
+  type: string;
+  userID: string;
+  passWord: string;
+}
+
+interface UserWebBasicUserInfoMessage {
+  type: string;
+  userID: string;
+}
+
+interface WebReplyLoginMessage {
   type: string;
   reason: string;
   outcome: boolean;
+}
+
+interface WebReplyBasicUserInfoMessage {
+  type: string;
+  userBasicInfo: {
+    userName: string;
+    sessionIDList: Array<string>;
+    friendIDList: Array<string>;
+    projectIDList: Array<string>;
+  };
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +75,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const LoginPanel = (props: any) => {
+  const userContext = React.useContext(UserContext);
+
   const [loginForm, setLoginForm] = useState<LoginInterface>({
     userID: '',
     passWord: '',
@@ -75,18 +101,48 @@ export const LoginPanel = (props: any) => {
   };
 
   const loginClick = () => {
-    const userWebLoginMessage = {
+    const userWebLoginMessage: UserWebLoginMessage = {
       type: 'UserWebLoginMessage',
       ...loginForm,
     };
     axios
       .post(`${serverAddress}/web`, JSON.stringify(userWebLoginMessage))
       .then((res) => {
-        const webReplyLoginMessage: WebReplyLoginInterface = res.data;
+        const webReplyLoginMessage: WebReplyLoginMessage = res.data;
         if (webReplyLoginMessage.outcome) {
-          ipcRenderer.send('goProjects');
+          const userWebBasicUserInfoMessage: UserWebBasicUserInfoMessage = {
+            type: 'UserWebBasicUserInfoMessage',
+            userID: loginForm.userID,
+          };
+          Promise.resolve(
+            axios
+              .post(
+                `${serverAddress}/web`,
+                JSON.stringify(userWebBasicUserInfoMessage)
+              )
+              .then((res) => {
+                const webReplyBasicUserInfoMessage: WebReplyBasicUserInfoMessage =
+                  res.data;
+                console.log(res.data);
+                userContext.updateStringField(
+                  'userName',
+                  webReplyBasicUserInfoMessage.userBasicInfo.userName
+                );
+                userContext.updateListField(
+                  'sessionIDList',
+                  webReplyBasicUserInfoMessage.userBasicInfo.sessionIDList
+                );
+                userContext.updateListField(
+                  'friendIDList',
+                  webReplyBasicUserInfoMessage.userBasicInfo.friendIDList
+                );
+                userContext.updateListField(
+                  'projectIDList',
+                  webReplyBasicUserInfoMessage.userBasicInfo.projectIDList
+                );
+              })
+          ).then(() => ipcRenderer.send('goProjects'));
         } else {
-          console.log('login failed!');
           setAlertSnackBar({
             snackBarTitle: '登录结果',
             snackBarContent: '用户ID或密码名错误，请重新登录！',
@@ -100,7 +156,7 @@ export const LoginPanel = (props: any) => {
     setWhetherOpenAlertSnackBar(false);
   };
 
-  const handleEnterInput = (e: KeyboardEvent<HTMLDivElement>) => {
+  const handleEnterInput = (e: any) => {
     if (e.key == 'Enter') {
       loginClick();
     }
