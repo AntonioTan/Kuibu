@@ -4,15 +4,29 @@
  * @Autor: Tabbit
  * @Date: 2021-04-17 23:31:17
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-19 13:28:21
+ * @LastEditTime: 2021-04-20 15:03:56
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const stringFunctionTemplate = (key: string, val: string) => {};
 const listFunctionTemplate = (key: string, val: Array<string>) => {};
 const changeWebSocket = (address: string) => {};
 
-const userObjectContext = {
+export interface UserContextInterface {
+  userID: string;
+  userName: string;
+  status: string;
+  currentProjectID: string;
+  friendIDList: Array<string>;
+  sessionIDList: Array<string>;
+  projectIDList: Array<string>;
+  webSocket: WebSocket;
+  updateStringField: (key: string, val: string) => void;
+  updateListField: (key: string, val: Array<string>) => void;
+  updateWebSocket: (address: string) => void;
+}
+
+export const userObjectContext: UserContextInterface = {
   userID: '',
   userName: '',
   status: 'Winter is coming',
@@ -26,14 +40,20 @@ const userObjectContext = {
   updateWebSocket: changeWebSocket,
 };
 
-export const UserContext = React.createContext(userObjectContext);
+export const UserContext = React.createContext<UserContextInterface>(
+  userObjectContext
+);
 
 export default function UserContextProviderComponent(props: any) {
-  const [context, setContext] = React.useState(userObjectContext);
+  const [context, setContext] = React.useState<UserContextInterface>(
+    userObjectContext
+  );
 
   const updateContext = (contextUpdates = {}) =>
     setContext((currentContext) => ({ ...currentContext, ...contextUpdates }));
-
+  // useEffect(() => {
+  //   console.log(context);
+  // }, [context]);
   React.useEffect(() => {
     if (context?.updateStringField === stringFunctionTemplate) {
       updateContext({

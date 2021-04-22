@@ -67,14 +67,13 @@ const getBackgroundColor = (index: number) =>
     .pop();
 
 export const ProjectCard = (props: ProjectCardInterface) => {
-  console.log(props.project.startDate);
   const [contentOpen, setContentOpen] = useState(false);
   const classes = useStyles();
   const handleContentOpen = () => {
     setContentOpen(!contentOpen);
   };
   const handleEnterProject = () => {
-    ipcRenderer.send('goMain');
+    ipcRenderer.send('goMain', [props.project.projectID]);
   };
   return (
     <div>
@@ -125,10 +124,10 @@ export const ProjectCard = (props: ProjectCardInterface) => {
                           .map((memberID: [string, boolean]) => {
                             return (
                               <Avatar
-                                alt={props.project.memberMap[memberID[0]]}
+                                alt={props.project.memberMap?.[memberID[0]]}
                                 className={classes.avatarSmall}
                               >
-                                {props.project.memberMap[memberID[0]].slice(
+                                {props.project.memberMap?.[memberID[0]].slice(
                                   0,
                                   1
                                 )}

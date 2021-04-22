@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:38:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-08 12:51:30
+ * @LastEditTime: 2021-04-20 15:26:18
  */
 
 import {
@@ -20,9 +20,17 @@ import {
   useTheme,
 } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
+import axios from 'axios';
 import { ipcRenderer } from 'electron';
 import React from 'react';
+import {
+  UserBasicInfo,
+  UserWebBasicUserInfoMessage,
+  WebReplyBasicUserInfoMessage,
+} from '../../Login/views/LoginPanel';
+import { serverAddress } from '../globals';
 import { KuibuTitle } from './KuibuTitle';
+import { UserContext } from './UserContext';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
@@ -32,6 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const KuibuAppBar = () => {
+  const userContext = React.useContext(UserContext);
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const classes = useStyles();

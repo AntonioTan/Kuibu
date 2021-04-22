@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 00:12:37
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-19 13:49:55
+ * @LastEditTime: 2021-04-23 00:05:31
  */
 
 import {
@@ -28,7 +28,7 @@ import {
   ListItemText,
   Typography,
 } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import CloseIcon from '@material-ui/icons/Close';
 import { Flipped } from 'react-flip-toolkit';
 import { SelectMemberDialog } from '../../Tasks/components/SelectMemberDialog';
@@ -36,15 +36,24 @@ import GroupIcon from '@material-ui/icons/Group';
 import { fakeMembers } from '../../utils/mock';
 import { AvatarGroup } from '@material-ui/lab';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import { serverAddress } from '../../utils/globals';
+import axios from 'axios';
+import { UserContext } from '../../utils/components/UserContext';
+import {
+  UserBasicInfo,
+  UserWebBasicUserInfoMessage,
+  WebReplyBasicUserInfoMessage,
+} from '../../Login/views/LoginPanel';
 
 export interface ProjectInterface {
   projectID: string;
   projectName: string;
+  createUserID: string;
   createUserName: string;
   description: string;
   startDate: Date;
   selectMemberIDs: { [key: string]: boolean };
-  memberMap: { [key: string]: string };
+  memberMap?: { [key: string]: string };
 }
 
 interface CreateProjectPropsInterface {
@@ -53,24 +62,67 @@ interface CreateProjectPropsInterface {
   readonly handleAddProjectList: (targetTask: ProjectInterface) => void;
 }
 
+export interface UserWebGetMemberMapMessage {
+  type: string;
+  userIDs: Array<string>;
+}
+
 const originalFakeSelectMemberMap: { [key: string]: boolean } = {};
 fakeMembers.map(
   (fakeMember) => (originalFakeSelectMemberMap[fakeMember] = false)
 );
 
 export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
+  const [initial, setInitial] = useState(1);
+  const userContext = useContext(UserContext);
   // 这里需要加上当前用户的id
   const [projectForm, setProjectForm] = useState<ProjectInterface>({
     projectID: '',
     projectName: '',
+    createUserID: '',
     createUserName: '',
     description: '',
     startDate: new Date(),
-    selectMemberIDs: originalFakeSelectMemberMap,
-    memberMap: {},
+    selectMemberIDs: {},
   });
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  useEffect(() => {
+    const userBasicInfo: UserBasicInfo = JSON.parse(
+      window.localStorage.getItem('userBasicInfo') || '{}'
+    );
+    const userID: string = window.localStorage.getItem('userID') || '';
+    var userIDs: Array<string> = [];
+    console.log('friendList:', userBasicInfo.friendIDList);
+    Object.assign(userIDs, userBasicInfo.friendIDList);
+    userIDs.push(userID);
+    const userWebGetMemberMapMessage: UserWebGetMemberMapMessage = {
+      type: 'UserWebGetMemberMapMessage',
+      userIDs: userIDs,
+    };
+    var selectMemberIDs: { [key: string]: boolean } = {};
+    userIDs.forEach((userID) => {
+      selectMemberIDs[userID] = false;
+    });
+    const getMemberMapPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWebGetMemberMapMessage)
+      );
+    console.log(JSON.stringify(userWebGetMemberMapMessage));
+    axios.all([getMemberMapPromise()]).then(
+      axios.spread((memberMapRst) => {
+        console.log(memberMapRst);
+
+        setProjectForm({
+          ...projectForm,
+          ['createUserID']: userID,
+          ['memberMap']: memberMapRst.data.memberMap,
+          ['selectMemberIDs']: selectMemberIDs,
+        });
+      })
+    );
+  }, [initial == 1]);
 
   const handleProjectNameChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -95,11 +147,16 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
 
   const handleCheckMember = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.currentTarget.name);
+    console.log(projectForm.selectMemberIDs);
+    console.log({
+      ...projectForm['selectMemberIDs'],
+      [e.currentTarget.id]: e.currentTarget.checked,
+    });
     setProjectForm({
       ...projectForm,
       ['selectMemberIDs']: {
         ...projectForm['selectMemberIDs'],
-        [e.currentTarget.name]: e.currentTarget.checked,
+        [e.currentTarget.id]: e.currentTarget.checked,
       },
     });
   };
@@ -184,7 +241,7 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 <Input
                   id="leader"
                   disabled={true}
-                  value="谭天一"
+                  value={userContext.userName}
                   style={{ width: '300px' }}
                 ></Input>
               </FormControl>
@@ -216,7 +273,7 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                members={projectForm.selectMemberIDs}
+                memberIDSelectMap={projectForm.selectMemberIDs}
                 handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -226,9 +283,13 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 secondary={
                   <AvatarGroup max={4}>
                     {Object.entries(projectForm.selectMemberIDs)
-                      .filter((member: [string, boolean], value) => member[1])
-                      .map((member: [string, boolean]) => (
-                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                      .filter(
+                        (memberID: [string, boolean], value) => memberID[1]
+                      )
+                      .map((memberID: [string, boolean]) => (
+                        <Avatar alt={projectForm.memberMap?.[memberID[0]]}>
+                          {projectForm.memberMap?.[memberID[0]].slice(0, 1)}
+                        </Avatar>
                       ))}
                   </AvatarGroup>
                 }

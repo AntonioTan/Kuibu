@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-18 00:11:01
+ * @LastEditTime: 2021-04-23 00:05:38
  */
 
 import {
@@ -32,6 +32,25 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import { scryRenderedDOMComponentsWithClass } from 'react-dom/test-utils';
 import { sessionData } from '../../utils/mock';
 import { UserContext } from '../../utils/components/UserContext';
+import { serverAddress } from '../../utils/globals';
+import axios from 'axios';
+
+export interface UserWebGetCompleteProjectInfoMessage {
+  type: string;
+  projectID: string;
+}
+
+export interface ProjectCompleteInfoInterface {
+  projectID: string;
+  projectName: string;
+  createUserID: string;
+  createUserName: string;
+  startDate: Date;
+  description: string;
+  userMap: {[key: string]: string};
+  taskMap: {[key: string]: string};
+  sessionMap: {[key: string]: string};
+}
 
 function functionTabProps(index: any) {
   return {
@@ -142,21 +161,20 @@ ws2.onmessage = (e) => {
   console.log(e);
 };
 
-// const functionMap: { [index: string]: JSX.Element } = {
-//   'vertical-tab-0': <TasksPanel></TasksPanel>,
-//   'vertical-tab-1': <ChatPanel></ChatPanel>,
-//   'vertical-tab-2': <div></div>,
-//   'vertical-tab-3': <MemberPanel></MemberPanel>,
-//   'vertical-tab-4': <div></div>,
-//   'vertical-tab-5': <div></div>,
-//   'vertical-tab-6': <div></div>,
-//   'vertical-tab-7': <div></div>,
-// };
 export const HomePage = () => {
-  const context = React.useContext(UserContext);
+  const userContext = React.useContext(UserContext);
+  const [initialState, setInitialState] = React.useState<number>(1);
   React.useEffect(() => {
-    context.updateStatus('Hello');
-  }, []);
+    const currentProjectID: string = window.localStorage.getItem('currentProjectID')||"";
+    const userWebGetCompleteProjectInfoMessage: UserWebGetCompleteProjectInfoMessage = {
+      type: 'UserWebGetCompleteProjectInfoMessage',
+      projectID: currentProjectID,
+    };
+    const getCompleteProjectInfoPromise = axios.post(`${serverAddress}/web`, JSON.stringify(userWebGetCompleteProjectInfoMessage));
+    axios.all([getCompleteProjectInfoPromis()]).then(axios.spread([getCompleteProjectInfoRst] => {
+
+    }))
+  }, [initialState == 1]);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean
   >(0);

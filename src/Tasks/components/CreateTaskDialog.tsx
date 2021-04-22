@@ -322,7 +322,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectLeader}
                 handleWhetherSelectMember={handleWhetherSelectLeader}
                 handleCheckMember={handleCheckLeader}
-                members={taskForm.leaders}
+                memberIDSelectMap={taskForm.leaders}
                 handleCancelClick={handleCancelCheckLeaderClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -381,7 +381,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                members={taskForm.members}
+                memberIDSelectMap={taskForm.members}
                 handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
             </ListItem>

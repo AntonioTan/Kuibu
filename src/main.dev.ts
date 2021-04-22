@@ -89,7 +89,8 @@ const createWindow = async () => {
   ipcMain.on('goWelcome', function (_event: any) {
     if (mainWindow != null) mainWindow.loadFile('index.html', {});
   });
-  ipcMain.on('goMain', function (_event: any) {
+  ipcMain.on('goMain', function (_event: any, args: any) {
+    window.localStorage.setItem('currentProjectID', args[0]);
     if (mainWindow != null)
       mainWindow.loadFile('index.html', {
         hash: '/home',

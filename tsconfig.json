@@ -3,6 +3,9 @@
     "target": "ES2018",
     "module": "CommonJS",
     "lib": ["dom", "esnext"],
+    //   "lib": [
+    //     "es5", "es6", "dom", "dom.iterable"
+    // ],
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,
@@ -31,6 +34,4 @@
     ".erb/dll"
   ],
   "include": ["src", "typings"]
-
-
 }

@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-19 15:37:37
+ * @LastEditTime: 2021-04-20 16:07:33
  */
 import {
   Button,
@@ -41,31 +41,33 @@ interface SnackBarInterface {
   snackBarContent: string;
 }
 
-interface UserWebLoginMessage {
+export interface UserWebLoginMessage {
   type: string;
   userID: string;
   passWord: string;
 }
 
-interface UserWebBasicUserInfoMessage {
+export interface UserWebBasicUserInfoMessage {
   type: string;
   userID: string;
 }
 
-interface WebReplyLoginMessage {
+export interface WebReplyLoginMessage {
   type: string;
   reason: string;
   outcome: boolean;
 }
 
-interface WebReplyBasicUserInfoMessage {
+export interface UserBasicInfo {
+  userName: string;
+  sessionIDList: Array<string>;
+  friendIDList: Array<string>;
+  projectIDList: Array<string>;
+}
+
+export interface WebReplyBasicUserInfoMessage {
   type: string;
-  userBasicInfo: {
-    userName: string;
-    sessionIDList: Array<string>;
-    friendIDList: Array<string>;
-    projectIDList: Array<string>;
-  };
+  userBasicInfo: UserBasicInfo;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -124,6 +126,7 @@ export const LoginPanel = (props: any) => {
                 const webReplyBasicUserInfoMessage: WebReplyBasicUserInfoMessage =
                   res.data;
                 console.log(res.data);
+                userContext.updateStringField('userID', loginForm.userID);
                 userContext.updateStringField(
                   'userName',
                   webReplyBasicUserInfoMessage.userBasicInfo.userName
@@ -139,6 +142,11 @@ export const LoginPanel = (props: any) => {
                 userContext.updateListField(
                   'projectIDList',
                   webReplyBasicUserInfoMessage.userBasicInfo.projectIDList
+                );
+                window.localStorage.setItem('userID', loginForm.userID);
+                window.localStorage.setItem(
+                  'userBasicInfo',
+                  JSON.stringify(webReplyBasicUserInfoMessage.userBasicInfo)
                 );
               })
           ).then(() => ipcRenderer.send('goProjects'));
