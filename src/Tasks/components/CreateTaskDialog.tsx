@@ -40,23 +40,27 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import FlagIcon from '@material-ui/icons/Flag';
 import GroupIcon from '@material-ui/icons/Group';
+import { TaskStatusInterface } from './TaskCard';
 
-export interface TaskInterface {
-  taskID: string;
-  parentID: string;
-  taskName: string;
+export interface CreateTaskInterface {
+  taskID?: string;
+  projectID?: string;
+  parentID?: string;
+  taskName?: string;
   startDate?: Date;
   endDate?: Date;
-  description: string;
-  leaders: { [key: string]: boolean };
-  members: { [key: string]: boolean };
-  childrenList: Array<TaskInterface>;
+  description?: string;
+  leaders?: { [key: string]: boolean };
+  members?: { [key: string]: boolean };
+  allMemberMap?: { [key: string]: string };
+  childrenMap?: { [key: string]: TaskStatusInterface };
 }
 
 interface CreateTaskPropsInterface {
   readonly whetherCreateTask: boolean;
   readonly handleWhetherCreateTaskPanel: (val: boolean) => void;
-  readonly handleAddTaskList: (newTask: TaskInterface) => void;
+  readonly handleAddTaskList: (newTask: CreateTaskInterface) => void;
+  readonly allMemberMap: { [key: string]: string };
 }
 
 const originalFakeSelectMemberMap: { [key: string]: boolean } = {};
@@ -64,9 +68,18 @@ fakeMembers.map(
   (fakeMember) => (originalFakeSelectMemberMap[fakeMember] = false)
 );
 
+const convertToSelectIDMap = (map: { [id: string]: string }) => {
+  var rst: { [id: string]: boolean } = {};
+  Object.entries(map).map((element: [string, string]) => {
+    rst[element[0]] = false;
+  });
+  return rst;
+};
+
 export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
-  const [taskForm, setTaskForm] = useState<TaskInterface>({
+  const [taskForm, setTaskForm] = useState<CreateTaskInterface>({
     taskID: '',
+    projectID: window.localStorage.getItem('currentProjectID') || '',
     parentID: '',
     taskName: '',
     startDate: new Date(),
@@ -74,7 +87,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
     description: '',
     leaders: originalFakeSelectMemberMap,
     members: originalFakeSelectMemberMap,
-    childrenList: [],
+    allMemberMap: props.allMemberMap,
   });
   const [whetherOpenSelectedMembers, setWhetherOpenSelectedMembers] = useState<
     boolean
@@ -92,7 +105,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
     false
   );
 
-  type taskInterfaceKeys = keyof TaskInterface;
+  type taskInterfaceKeys = keyof CreateTaskInterface;
 
   const handleStartDateChange = (
     key: taskInterfaceKeys,
@@ -121,7 +134,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
 
   const handleCancelCheckMemberClick = () => {
     var newMembers: { [key: string]: boolean } = {};
-    Object.entries(taskForm['members']).map((member: [string, boolean]) => {
+    Object.entries(taskForm?.members || {}).map((member: [string, boolean]) => {
       newMembers[member[0]] = false;
     });
     setTaskForm({
@@ -133,7 +146,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   const handleCheckLeader = (e: React.ChangeEvent<HTMLInputElement>) => {
     var newMembers: { [key: string]: boolean } = {};
 
-    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+    Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
       if (!leader[1] && leader[0] != e.currentTarget.name)
         newMembers[leader[0]] = false;
     });
@@ -155,7 +168,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   const handleCancelCheckLeaderClick = () => {
     var newLeaders: { [key: string]: boolean } = {};
     var newMembers: { [key: string]: boolean } = {};
-    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+    Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
       newLeaders[leader[0]] = false;
       newMembers[leader[0]] = false;
     });
@@ -194,12 +207,12 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   const handleConfirmClick = () => {
     // TODO 这里需要从后端获取Task id再更新新的task
     const unchangedTaskForm = Object.assign({}, taskForm);
-    var recoverMembers: { [key: string]: boolean } = {};
-    var recoverLeaders: { [key: string]: boolean } = {};
-    Object.entries(taskForm.leaders).map((leader: [string, boolean]) => {
-      recoverMembers[leader[0]] = false;
-      recoverLeaders[leader[0]] = false;
-    });
+    var recoverMembers: { [key: string]: boolean } = convertToSelectIDMap(
+      props.allMemberMap
+    );
+    var recoverLeaders: { [key: string]: boolean } = convertToSelectIDMap(
+      props.allMemberMap
+    );
     setTaskForm({
       ...taskForm,
       ['members']: recoverMembers,
@@ -322,7 +335,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectLeader}
                 handleWhetherSelectMember={handleWhetherSelectLeader}
                 handleCheckMember={handleCheckLeader}
-                memberIDSelectMap={taskForm.leaders}
+                memberIDSelectMap={taskForm?.leaders || {}}
                 handleCancelClick={handleCancelCheckLeaderClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -336,7 +349,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 primary="已选取负责人:"
                 secondary={
                   <AvatarGroup max={2}>
-                    {Object.entries(taskForm.leaders)
+                    {Object.entries(taskForm?.leaders || {})
                       .filter((leader: [string, boolean], value) => leader[1])
                       .map((leader: [string, boolean]) => (
                         <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
@@ -350,7 +363,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
             </ListItem>
             <ListItem id="display-picked-leader-list-item">
               <Collapse in={whetherOpenSelectedLeaders}>
-                {Object.entries(taskForm.leaders)
+                {Object.entries(taskForm?.leaders || {})
                   .filter((leader: [string, boolean], value) => leader[1])
                   .map((leader: [string, boolean]) => (
                     <Grid
@@ -381,7 +394,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                memberIDSelectMap={taskForm.members}
+                memberIDSelectMap={taskForm?.members || {}}
                 handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -394,7 +407,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 primary="已选取组员:"
                 secondary={
                   <AvatarGroup max={4}>
-                    {Object.entries(taskForm.members)
+                    {Object.entries(taskForm?.members || {})
                       .filter((member: [string, boolean], value) => member[1])
                       .map((member: [string, boolean]) => (
                         <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
@@ -408,7 +421,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
             </ListItem>
             <ListItem id="display-picked-list-item">
               <Collapse in={whetherOpenSelectedMembers}>
-                {Object.entries(taskForm.members)
+                {Object.entries(taskForm?.members || {})
                   .filter((member: [string, boolean], value) => member[1])
                   .map((member: [string, boolean]) => (
                     <Grid

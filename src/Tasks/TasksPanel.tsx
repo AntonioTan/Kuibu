@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 09:31:10
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-16 23:43:36
+ * @LastEditTime: 2021-04-23 15:17:35
  */
 import {
   Button,
@@ -38,7 +38,7 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle';
 
 import SearchBar from 'material-ui-search-bar';
 import AddBox from '@material-ui/icons/AddBox';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TaskCard } from './components/TaskCard';
 import CloseIcon from '@material-ui/icons/Close';
 import DateFnsUtils from '@date-io/date-fns';
@@ -51,8 +51,13 @@ import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Draggable from 'react-draggable';
 import { CheckBox } from '@material-ui/icons';
-import { CreateTaskDialog, TaskInterface } from './components/CreateTaskDialog';
+import {
+  CreateTaskDialog,
+  CreateTaskInterface,
+} from './components/CreateTaskDialog';
 import { EditTaskDialog } from './components/EditTaskDialog';
+import { serverAddress } from '../utils/globals';
+import axios from 'axios';
 
 const originalTaskNames = [
   '完成开题报告',
@@ -65,8 +70,16 @@ const originalTaskNames = [
   '完成中期答辩',
 ];
 
-export const TasksPanel = () => {
+interface TasksPanelInterface {
+  taskMap?: { [key: string]: string };
+}
+
+export const TasksPanel = (props: TasksPanelInterface) => {
+  const [initial, setInitial] = useState<number>(1);
   const [searched, setSearched] = useState<string>('');
+  const [allMemberMap, setAllMemberMap] = useState<{
+    [key: string]: string;
+  } | null>(props?.taskMap || {});
   const [taskNames, setTaskNames] = useState<string[]>(originalTaskNames);
   const [whetherCreateTask, setWhetherCreateTask] = useState(false);
   const [whetherEditTask, setWhetherEditTask] = useState(false);
@@ -74,7 +87,7 @@ export const TasksPanel = () => {
   const [whetherSelectMember, setWhetherSelectMember] = useState<boolean>(
     false
   );
-  const [taskList, setTaskList] = useState<Array<TaskInterface>>([]);
+  const [taskList, setTaskList] = useState<Array<CreateTaskInterface>>([]);
 
   const requestSearch = (searchedVal: string) => {
     const filteredTaskNames = originalTaskNames.filter(
@@ -88,11 +101,7 @@ export const TasksPanel = () => {
     requestSearch(searched);
   };
 
-  const handleOpenCreateTaskPanel = () => {
-    setWhetherCreateTask(true);
-  };
-
-  const handleWhetherCreateTaskPanel = (val: boolean) => {
+  const handleWhetherCreateTask = (val: boolean) => {
     setWhetherCreateTask(val);
   };
 
@@ -112,8 +121,8 @@ export const TasksPanel = () => {
     setWhetherEditTask(true);
   };
 
-  const handleAddTaskList = (newTask: TaskInterface) => {
-    var newTaskList: Array<TaskInterface> = [];
+  const handleAddTaskList = (newTask: CreateTaskInterface) => {
+    var newTaskList: Array<CreateTaskInterface> = [];
     Object.assign(newTaskList, taskList);
     newTaskList.push(newTask);
     setTaskList(newTaskList);
@@ -156,7 +165,7 @@ export const TasksPanel = () => {
               <IconButton
                 aria-label="addTask"
                 color="primary"
-                onClick={handleOpenCreateTaskPanel}
+                onClick={() => handleWhetherCreateTask(true)}
               >
                 <AddBox fontSize="large"></AddBox>
               </IconButton>
@@ -165,26 +174,29 @@ export const TasksPanel = () => {
         </Grid>
         <CreateTaskDialog
           whetherCreateTask={whetherCreateTask}
-          handleWhetherCreateTaskPanel={handleWhetherCreateTaskPanel}
+          handleWhetherCreateTaskPanel={handleWhetherCreateTask}
           handleAddTaskList={handleAddTaskList}
+          allMemberMap={props?.taskMap || {}}
         ></CreateTaskDialog>
         <Grid item>
           <Grid container direction="row" justify="space-evenly" spacing={2}>
-            {taskList.map((task, index) => {
-              return (
-                <Grid item style={{ width: '340px' }}>
-                  <TaskCard
-                    openEditTaskPanel={openEditTaskPanel}
-                    targetTask={task}
-                  ></TaskCard>
-                  <EditTaskDialog
-                    whetherEditTask={whetherEditTask}
-                    handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
-                    targetTaskForm={task}
-                  ></EditTaskDialog>
-                </Grid>
-              );
-            })}
+            {Object.entries(props?.taskMap || {}).map(
+              (task: [string, string]) => {
+                return (
+                  <Grid item style={{ width: '340px' }}>
+                    <TaskCard
+                      openEditTaskPanel={openEditTaskPanel}
+                      taskID={task[0]}
+                    ></TaskCard>
+                    <EditTaskDialog
+                      whetherEditTask={whetherEditTask}
+                      handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
+                      taskID={task[0]}
+                    ></EditTaskDialog>
+                  </Grid>
+                );
+              }
+            )}
           </Grid>
         </Grid>
       </Grid>

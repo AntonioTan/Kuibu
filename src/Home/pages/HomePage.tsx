@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 00:05:38
+ * @LastEditTime: 2021-04-23 15:14:16
  */
 
 import {
@@ -34,6 +34,7 @@ import { sessionData } from '../../utils/mock';
 import { UserContext } from '../../utils/components/UserContext';
 import { serverAddress } from '../../utils/globals';
 import axios from 'axios';
+import { ProjectCard } from '../../Projects/components/dist/ProjectCard';
 
 export interface UserWebGetCompleteProjectInfoMessage {
   type: string;
@@ -47,9 +48,21 @@ export interface ProjectCompleteInfoInterface {
   createUserName: string;
   startDate: Date;
   description: string;
-  userMap: {[key: string]: string};
-  taskMap: {[key: string]: string};
-  sessionMap: {[key: string]: string};
+  userMap: { [key: string]: string };
+  taskMap: { [key: string]: string };
+  sessionMap: { [key: string]: string };
+}
+
+export interface WebReplyProjectCompleteInfoInterface {
+  projectID: string;
+  projectName: string;
+  createUserID: string;
+  createUserName: string;
+  startDate: string;
+  description: string;
+  userMap: { [key: string]: string };
+  taskMap: { [key: string]: string };
+  sessionMap: { [key: string]: string };
 }
 
 function functionTabProps(index: any) {
@@ -164,16 +177,41 @@ ws2.onmessage = (e) => {
 export const HomePage = () => {
   const userContext = React.useContext(UserContext);
   const [initialState, setInitialState] = React.useState<number>(1);
+  const [
+    currentProject,
+    setCurrentProject,
+  ] = React.useState<ProjectCompleteInfoInterface | null>();
   React.useEffect(() => {
-    const currentProjectID: string = window.localStorage.getItem('currentProjectID')||"";
+    const currentProjectID: string =
+      window.localStorage.getItem('currentProjectID') || '';
     const userWebGetCompleteProjectInfoMessage: UserWebGetCompleteProjectInfoMessage = {
       type: 'UserWebGetCompleteProjectInfoMessage',
       projectID: currentProjectID,
     };
-    const getCompleteProjectInfoPromise = axios.post(`${serverAddress}/web`, JSON.stringify(userWebGetCompleteProjectInfoMessage));
-    axios.all([getCompleteProjectInfoPromis()]).then(axios.spread([getCompleteProjectInfoRst] => {
-
-    }))
+    const getCompleteProjectInfoPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWebGetCompleteProjectInfoMessage)
+      );
+    axios.all([getCompleteProjectInfoPromise()]).then(
+      axios.spread((getCompleteProjectInfoRst) => {
+        const webReplyCompleteProjectInfo: WebReplyProjectCompleteInfoInterface =
+          getCompleteProjectInfoRst.data.projectCompleteInfo;
+        const projectCompleteInfo: ProjectCompleteInfoInterface = {
+          projectID: webReplyCompleteProjectInfo.projectID,
+          projectName: webReplyCompleteProjectInfo.projectName,
+          createUserID: webReplyCompleteProjectInfo.createUserID,
+          createUserName: webReplyCompleteProjectInfo.createUserName,
+          description: webReplyCompleteProjectInfo.description,
+          startDate: new Date(webReplyCompleteProjectInfo.startDate),
+          userMap: webReplyCompleteProjectInfo.userMap,
+          sessionMap: webReplyCompleteProjectInfo.sessionMap,
+          taskMap: webReplyCompleteProjectInfo.taskMap,
+        };
+        setCurrentProject(projectCompleteInfo);
+        setInitialState(0);
+      })
+    );
   }, [initialState == 1]);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean
@@ -232,8 +270,24 @@ export const HomePage = () => {
     </Accordion>
   );
   const getFunction = (id: String) => {
+    var createUserMap: { [key: string]: string } = {};
+    const createUserID: string = currentProject?.createUserID || '';
+    if (createUserID != '') {
+      createUserMap[createUserID] = currentProject?.createUserName || '';
+    }
+
+    const allMemberMap: { [key: string]: string } = Object.assign(
+      {},
+      currentProject?.userMap,
+      createUserMap
+    );
     if (id === 'vertical-function-tab-0') {
-      return <TasksPanel></TasksPanel>;
+      return (
+        <TasksPanel
+          taskMap={currentProject?.taskMap}
+          allMemberMap={allMemberMap}
+        ></TasksPanel>
+      );
     } else if (id === 'vertical-function-tab-1') {
       return <ChatPanel></ChatPanel>;
     } else if (id === 'vertical-function-tab-3') {

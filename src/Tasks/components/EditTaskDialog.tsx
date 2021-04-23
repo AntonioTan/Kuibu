@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-16 09:29:30
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-17 00:36:45
+ * @LastEditTime: 2021-04-23 15:25:06
  */
 
 import {
@@ -32,7 +32,7 @@ import {
 } from '@material-ui/core';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CloseIcon from '@material-ui/icons/Close';
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -54,32 +54,103 @@ import FlagIcon from '@material-ui/icons/Flag';
 import GroupIcon from '@material-ui/icons/Group';
 import AddIcon from '@material-ui/icons/Add';
 
-import { CreateTaskDialog, TaskInterface } from './CreateTaskDialog';
+import { CreateTaskDialog, CreateTaskInterface } from './CreateTaskDialog';
+import {
+  TaskInterface,
+  TaskStatusInterface,
+  UserWebCompleteTaskInfoMessage,
+  WebReplyTaskInterface,
+} from './TaskCard';
+import axios from 'axios';
+import { serverAddress } from '../../utils/globals';
 
 interface EditTaskPropsInterface {
   readonly whetherEditTask: boolean;
   readonly handleWhetherEditTaskPanel: (val: boolean) => void;
-  targetTaskForm: TaskInterface;
+  taskID: string;
 }
 
 export const EditTaskDialog = (props: EditTaskPropsInterface) => {
-  const [taskForm, setTaskForm] = useState<TaskInterface>(props.targetTaskForm);
-
+  const [initial, setInitial] = useState<number>(1);
+  const [taskForm, setTaskForm] = useState<CreateTaskInterface | null>();
+  const [targetTask, setTargetTask] = useState<TaskInterface | null>();
   // Create Task Park Logic
   const [whetherCreateTask, setWhetherCreateTask] = useState<boolean>(false);
+
+  useEffect(() => {
+    const userWebCompleteTaskInfoMessage: UserWebCompleteTaskInfoMessage = {
+      type: 'UserWebCompleteTaskInfoMessage',
+      taskID: props.taskID,
+    };
+    const getCompleteTaskInfoPromise = () => axios.post(`${serverAddress}/web`);
+    axios.all([getCompleteTaskInfoPromise()]).then(
+      axios.spread((getCompleteTaskInfoRst) => {
+        const webReplyTaskCompleteInfo: WebReplyTaskInterface =
+          getCompleteTaskInfoRst.data.taskCompleteInfo;
+        const taskCompleteInfo: TaskInterface = {
+          taskID: webReplyTaskCompleteInfo.taskID,
+          taskName: webReplyTaskCompleteInfo.taskName,
+          projectID: webReplyTaskCompleteInfo.projectID,
+          status: webReplyTaskCompleteInfo.status,
+          startDate: new Date(webReplyTaskCompleteInfo.startDate),
+          endDate: new Date(webReplyTaskCompleteInfo.endDate),
+          description: webReplyTaskCompleteInfo.description,
+          parentID: webReplyTaskCompleteInfo.parentID,
+          parentName: webReplyTaskCompleteInfo.parentName,
+          childrenMap: webReplyTaskCompleteInfo.childrenMap,
+          leaderMap: webReplyTaskCompleteInfo.leaderMap,
+          userMap: webReplyTaskCompleteInfo.userMap,
+        };
+        setTargetTask(taskCompleteInfo);
+        var leaders: { [key: string]: boolean } = {};
+        var members: { [key: string]: boolean } = {};
+        const allMemberMap: { [key: string]: string } = Object.assign(
+          {},
+          taskCompleteInfo.leaderMap,
+          taskCompleteInfo.userMap
+        );
+        Object.entries(taskCompleteInfo.leaderMap).map(
+          (leader: [string, string]) => {
+            leaders[leader[0]] = true;
+          }
+        );
+        Object.entries(taskCompleteInfo.userMap).map(
+          (member: [string, string]) => {
+            leaders[member[0]] = false;
+            members[member[0]] = true;
+          }
+        );
+        const taskForm: CreateTaskInterface = {
+          taskID: taskCompleteInfo.taskID,
+          taskName: taskCompleteInfo.taskName,
+          projectID: taskCompleteInfo.projectID,
+          parentID: taskCompleteInfo.parentID,
+          startDate: taskCompleteInfo.startDate,
+          endDate: taskCompleteInfo.endDate,
+          description: taskCompleteInfo.description,
+          leaders: leaders,
+          members: members,
+          allMemberMap: allMemberMap,
+          childrenMap: taskCompleteInfo.childrenMap,
+        };
+        setTaskForm(taskForm);
+      })
+    );
+    setInitial(0);
+  }, [initial === 1]);
 
   const handleWhetherCreateTask = (val: boolean) => {
     setWhetherCreateTask(val);
   };
 
-  const handleAddTaskList = (newTask: TaskInterface) => {
-    var newChildrenList: Array<TaskInterface> = [];
-    Object.assign(newChildrenList, taskForm['childrenList']);
-    newChildrenList.push(newTask);
-    setTaskForm({
-      ...taskForm,
-      ['childrenList']: newChildrenList,
-    });
+  const handleAddTaskList = (newTask: CreateTaskInterface) => {
+    // var newChildrenList: Array<CreateTaskInterface> = [];
+    // Object.assign(newChildrenList, taskForm['childrenList']);
+    // newChildrenList.push(newTask);
+    // setTaskForm({
+    //   ...taskForm,
+    //   ['childrenList']: newChildrenList,
+    // });
   };
 
   const [whetherOpenSelectedMembers, setWhetherOpenSelectedMembers] = useState<
@@ -98,7 +169,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
     false
   );
 
-  type taskInterfaceKeys = keyof TaskInterface;
+  type taskInterfaceKeys = keyof CreateTaskInterface;
 
   const handleStartDateChange = (
     key: taskInterfaceKeys,
@@ -119,7 +190,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
     setTaskForm({
       ...taskForm,
       ['members']: {
-        ...taskForm['members'],
+        ...taskForm?.members,
         [e.currentTarget.name]: e.currentTarget.checked,
       },
     });
@@ -127,7 +198,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
 
   const handleCancelCheckMemberClick = () => {
     var newMembers: { [key: string]: boolean } = {};
-    Object.entries(taskForm['members']).map((member: [string, boolean]) => {
+    Object.entries(taskForm?.members || {}).map((member: [string, boolean]) => {
       newMembers[member[0]] = false;
     });
     setTaskForm({
@@ -139,7 +210,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
   const handleCheckLeader = (e: React.ChangeEvent<HTMLInputElement>) => {
     var newMembers: { [key: string]: boolean } = {};
 
-    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+    Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
       if (!leader[1] && leader[0] != e.currentTarget.name)
         newMembers[leader[0]] = false;
     });
@@ -148,7 +219,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
       ...taskForm,
       ['members']: newMembers,
       ['leaders']: {
-        ...taskForm['leaders'],
+        ...taskForm?.leaders,
         [e.currentTarget.name]: e.currentTarget.checked,
       },
     });
@@ -161,7 +232,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
   const handleCancelCheckLeaderClick = () => {
     var newLeaders: { [key: string]: boolean } = {};
     var newMembers: { [key: string]: boolean } = {};
-    Object.entries(taskForm['leaders']).map((leader: [string, boolean]) => {
+    Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
       newLeaders[leader[0]] = false;
       newMembers[leader[0]] = false;
     });
@@ -262,7 +333,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 <InputLabel htmlFor="taskName">任务名称</InputLabel>
                 <Input
                   id="taskName"
-                  value={taskForm.taskName}
+                  value={taskForm?.taskName}
                   style={{ width: '350px' }}
                   onChange={handleTaskNameChange}
                 ></Input>
@@ -290,7 +361,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                     id="date-picker-inline"
                     label="选择任务开始日期"
                     style={{ width: '350px' }}
-                    value={taskForm['startDate']}
+                    value={taskForm?.startDate}
                     onChange={(value) =>
                       handleStartDateChange('startDate', value)
                     }
@@ -312,7 +383,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                     id="date-picker-inline"
                     label="选择任务预计结束日期"
                     style={{ width: '350px' }}
-                    value={taskForm['endDate']}
+                    value={taskForm?.endDate}
                     onChange={(value) =>
                       handleStartDateChange('endDate', value)
                     }
@@ -336,7 +407,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectLeader}
                 handleWhetherSelectMember={handleWhetherSelectLeader}
                 handleCheckMember={handleCheckLeader}
-                members={taskForm.leaders}
+                memberIDSelectMap={taskForm?.leaders || {}}
                 handleCancelClick={handleCancelCheckLeaderClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -350,7 +421,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 primary="已选取负责人:"
                 secondary={
                   <AvatarGroup max={2}>
-                    {Object.entries(taskForm.leaders)
+                    {Object.entries(taskForm?.leaders || {})
                       .filter((leader: [string, boolean], value) => leader[1])
                       .map((leader: [string, boolean]) => (
                         <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
@@ -364,7 +435,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
             </ListItem>
             <ListItem id="display-picked-leader-list-item">
               <Collapse in={whetherOpenSelectedLeaders}>
-                {Object.entries(taskForm.leaders)
+                {Object.entries(taskForm?.leaders || {})
                   .filter((leader: [string, boolean], value) => leader[1])
                   .map((leader: [string, boolean]) => (
                     <Grid
@@ -374,7 +445,10 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                       spacing={1}
                     >
                       <Grid item>
-                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={taskForm?.allMemberMap?.leader[0] || ''}>
+                          {' '}
+                          {taskForm?.allMemberMap?.leader[0].slice(0, 1)}
+                        </Avatar>
                       </Grid>
                       <Grid item>{leader[0]}</Grid>
                     </Grid>
@@ -395,7 +469,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                members={taskForm.members}
+                memberIDSelectMap={taskForm?.members || {}}
                 handleCancelClick={handleCancelCheckMemberClick}
               ></SelectMemberDialog>
             </ListItem>
@@ -408,10 +482,13 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 primary="已选取组员:"
                 secondary={
                   <AvatarGroup max={4}>
-                    {Object.entries(taskForm.members)
+                    {Object.entries(taskForm?.members || {})
                       .filter((member: [string, boolean], value) => member[1])
                       .map((member: [string, boolean]) => (
-                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={taskForm?.allMemberMap?.member[0] || ''}>
+                          {' '}
+                          {taskForm?.allMemberMap?.member[0].slice(0, 1)}
+                        </Avatar>
                       ))}
                   </AvatarGroup>
                 }
@@ -422,7 +499,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
             </ListItem>
             <ListItem id="display-picked-list-item">
               <Collapse in={whetherOpenSelectedMembers}>
-                {Object.entries(taskForm.members)
+                {Object.entries(taskForm?.members || {})
                   .filter((member: [string, boolean], value) => member[1])
                   .map((member: [string, boolean]) => (
                     <Grid
@@ -445,7 +522,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 <InputLabel htmlFor="taskDescription">任务描述</InputLabel>
                 <Input
                   id="taskDescription"
-                  value={taskForm.description}
+                  value={taskForm?.description}
                   onChange={handleTaskDescriptionChange}
                   style={{ width: '350px' }}
                 ></Input>
@@ -482,6 +559,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                               handleWhetherCreateTask
                             }
                             handleAddTaskList={handleAddTaskList}
+                            allMemberMap={taskForm?.allMemberMap || {}}
                           ></CreateTaskDialog>
                         </Grid>
                       </Grid>
@@ -489,8 +567,8 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                     <Grid item>
                       <Divider></Divider>
                     </Grid>
-                    {taskForm.childrenList.length != 0 ? (
-                      taskForm.childrenList.map((child) => {
+                    {Object.entries(taskForm?.childrenMap || {}).map(
+                      (child: [string, TaskStatusInterface]) => {
                         return (
                           <Grid item>
                             <Grid
@@ -500,9 +578,11 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                               spacing={2}
                             >
                               <Grid item style={{ width: '200px' }}>
-                                <Typography>{child.taskName}</Typography>
+                                <Typography>{child[1].taskName}</Typography>
                               </Grid>
-                              <Grid item>finished</Grid>
+                              <Grid item>
+                                {child[1].status ? '已完成' : '未完成'}
+                              </Grid>
                               <Grid item>
                                 <Button variant="outlined" color="primary">
                                   编辑
@@ -521,9 +601,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                             </Grid>
                           </Grid>
                         );
-                      })
-                    ) : (
-                      <div></div>
+                      }
                     )}
                   </Grid>
                 </CardContent>
