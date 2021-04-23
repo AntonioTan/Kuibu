@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-10 21:38:32
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-20 15:45:04
+ * @LastEditTime: 2021-04-23 17:41:32
  */
 import {
   Button,
@@ -52,7 +52,6 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
     [key: string]: string;
   } | null>();
   useEffect(() => {
-    console.log(props.memberIDSelectMap);
     const memberIDs: Array<string> = Object.entries(
       props.memberIDSelectMap
     ).map((memberID: [string, boolean]) => memberID[0]);
@@ -60,7 +59,6 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
       type: 'UserWebGetMemberMapMessage',
       userIDs: memberIDs,
     };
-    console.log('member ids', memberIDs);
     const getMemberMapPromise = () =>
       axios.post(
         `${serverAddress}/web`,
@@ -73,7 +71,19 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
     );
     setInitial(0);
   }, [initial == 1]);
-  console.log(props.memberIDSelectMap);
+
+  const handleConfirmClick = () => {
+    setInitial(1);
+    props.handleWhetherSelectMember(false);
+  };
+
+  const handleCancelClick = () => {
+    setInitial(1);
+    props.handleCancelClick();
+    props.handleWhetherSelectMember(false);
+  };
+
+  // console.log(props.memberIDSelectMap);
   return (
     <Dialog
       open={props.whetherSelectMember}
@@ -109,20 +119,13 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
         </FormGroup>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => props.handleWhetherSelectMember(false)}
-        >
+        <Button variant="outlined" color="primary" onClick={handleConfirmClick}>
           确定
         </Button>
         <Button
           style={{ color: 'red', borderColor: 'red' }}
           variant="outlined"
-          onClick={() => {
-            props.handleCancelClick();
-            props.handleWhetherSelectMember(false);
-          }}
+          onClick={handleCancelClick}
         >
           取消
         </Button>

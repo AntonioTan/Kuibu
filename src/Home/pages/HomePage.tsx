@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 15:14:16
+ * @LastEditTime: 2021-04-23 16:40:11
  */
 
 import {
@@ -197,6 +197,10 @@ export const HomePage = () => {
       axios.spread((getCompleteProjectInfoRst) => {
         const webReplyCompleteProjectInfo: WebReplyProjectCompleteInfoInterface =
           getCompleteProjectInfoRst.data.projectCompleteInfo;
+        console.log(
+          'webReplyCompleteProjectMessage',
+          webReplyCompleteProjectInfo
+        );
         const projectCompleteInfo: ProjectCompleteInfoInterface = {
           projectID: webReplyCompleteProjectInfo.projectID,
           projectName: webReplyCompleteProjectInfo.projectName,
@@ -282,6 +286,7 @@ export const HomePage = () => {
       createUserMap
     );
     if (id === 'vertical-function-tab-0') {
+      console.log('all member map', allMemberMap);
       return (
         <TasksPanel
           taskMap={currentProject?.taskMap}

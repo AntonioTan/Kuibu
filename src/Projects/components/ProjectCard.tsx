@@ -73,7 +73,8 @@ export const ProjectCard = (props: ProjectCardInterface) => {
     setContentOpen(!contentOpen);
   };
   const handleEnterProject = () => {
-    ipcRenderer.send('goMain', [props.project.projectID]);
+    window.localStorage.setItem('currentProjectID', props.project.projectID);
+    ipcRenderer.send('goMain');
   };
   return (
     <div>

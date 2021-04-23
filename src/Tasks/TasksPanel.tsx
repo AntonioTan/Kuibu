@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 09:31:10
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 15:17:35
+ * @LastEditTime: 2021-04-23 22:34:20
  */
 import {
   Button,
@@ -71,10 +71,15 @@ const originalTaskNames = [
 ];
 
 interface TasksPanelInterface {
+  allMemberMap?: { [key: string]: string };
   taskMap?: { [key: string]: string };
 }
 
 export const TasksPanel = (props: TasksPanelInterface) => {
+  console.log('task panel all member', props?.allMemberMap);
+  const [taskMap, setTaskMap] = useState<{ [key: string]: string }>(
+    props?.taskMap || {}
+  );
   const [initial, setInitial] = useState<number>(1);
   const [searched, setSearched] = useState<string>('');
   const [allMemberMap, setAllMemberMap] = useState<{
@@ -121,11 +126,22 @@ export const TasksPanel = (props: TasksPanelInterface) => {
     setWhetherEditTask(true);
   };
 
-  const handleAddTaskList = (newTask: CreateTaskInterface) => {
-    var newTaskList: Array<CreateTaskInterface> = [];
-    Object.assign(newTaskList, taskList);
-    newTaskList.push(newTask);
-    setTaskList(newTaskList);
+  const handleAddTaskList = (newTaskMap: { [key: string]: string }) => {
+    setTaskMap({
+      ...taskMap,
+      ...newTaskMap,
+    });
+  };
+
+  const getCreateTaskDialog = () => {
+    return (
+      <CreateTaskDialog
+        whetherCreateTask={whetherCreateTask}
+        handleWhetherCreateTaskPanel={handleWhetherCreateTask}
+        handleAddTaskList={handleAddTaskList}
+        allMemberMap={props?.allMemberMap || {}}
+      ></CreateTaskDialog>
+    );
   };
 
   function PaperComponent() {
@@ -172,31 +188,30 @@ export const TasksPanel = (props: TasksPanelInterface) => {
             </Grid>
           </Grid>
         </Grid>
-        <CreateTaskDialog
+        {getCreateTaskDialog()}
+        {/* <CreateTaskDialog
           whetherCreateTask={whetherCreateTask}
           handleWhetherCreateTaskPanel={handleWhetherCreateTask}
           handleAddTaskList={handleAddTaskList}
-          allMemberMap={props?.taskMap || {}}
-        ></CreateTaskDialog>
+          allMemberMap={props?.allMemberMap || {}}
+        ></CreateTaskDialog> */}
         <Grid item>
           <Grid container direction="row" justify="space-evenly" spacing={2}>
-            {Object.entries(props?.taskMap || {}).map(
-              (task: [string, string]) => {
-                return (
-                  <Grid item style={{ width: '340px' }}>
-                    <TaskCard
-                      openEditTaskPanel={openEditTaskPanel}
-                      taskID={task[0]}
-                    ></TaskCard>
-                    <EditTaskDialog
-                      whetherEditTask={whetherEditTask}
-                      handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
-                      taskID={task[0]}
-                    ></EditTaskDialog>
-                  </Grid>
-                );
-              }
-            )}
+            {Object.entries(taskMap).map((task: [string, string]) => {
+              return (
+                <Grid item style={{ width: '340px' }}>
+                  <TaskCard
+                    openEditTaskPanel={openEditTaskPanel}
+                    taskID={task[0]}
+                  ></TaskCard>
+                  <EditTaskDialog
+                    whetherEditTask={whetherEditTask}
+                    handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
+                    taskID={task[0]}
+                  ></EditTaskDialog>
+                </Grid>
+              );
+            })}
           </Grid>
         </Grid>
       </Grid>

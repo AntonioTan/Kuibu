@@ -21,7 +21,7 @@ import {
 } from '@material-ui/core';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CloseIcon from '@material-ui/icons/Close';
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -41,6 +41,8 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import FlagIcon from '@material-ui/icons/Flag';
 import GroupIcon from '@material-ui/icons/Group';
 import { TaskStatusInterface } from './TaskCard';
+import { serverAddress } from '../../utils/globals';
+import axios from 'axios';
 
 export interface CreateTaskInterface {
   taskID?: string;
@@ -56,6 +58,22 @@ export interface CreateTaskInterface {
   childrenMap?: { [key: string]: TaskStatusInterface };
 }
 
+export interface NewTaskInterface {
+  taskName: string;
+  projectID: string;
+  parentID: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  leaderIDList: Array<string>;
+  userIDList: Array<string>;
+}
+
+export interface UserWebAddTaskMessage {
+  type: string;
+  newTask: NewTaskInterface;
+}
+
 interface CreateTaskPropsInterface {
   readonly whetherCreateTask: boolean;
   readonly handleWhetherCreateTaskPanel: (val: boolean) => void;
@@ -68,12 +86,21 @@ fakeMembers.map(
   (fakeMember) => (originalFakeSelectMemberMap[fakeMember] = false)
 );
 
-const convertToSelectIDMap = (map: { [id: string]: string }) => {
+export const convertToSelectIDMap = (map: { [id: string]: string }) => {
   var rst: { [id: string]: boolean } = {};
   Object.entries(map).map((element: [string, string]) => {
     rst[element[0]] = false;
   });
   return rst;
+};
+
+export const getSelectedListFromMap = (map: { [id: string]: boolean }) => {
+  const rstList: Array<string> = Object.entries(map)
+    .filter((element: [string, boolean]) => element[1])
+    .map((element: [string, boolean]) => {
+      return element[0];
+    });
+  return rstList;
 };
 
 export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
@@ -85,10 +112,29 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
     startDate: new Date(),
     endDate: new Date(),
     description: '',
-    leaders: originalFakeSelectMemberMap,
-    members: originalFakeSelectMemberMap,
+    leaders: convertToSelectIDMap(props.allMemberMap),
+    members: convertToSelectIDMap(props.allMemberMap),
     allMemberMap: props.allMemberMap,
   });
+  useEffect(() => {
+    setTaskForm({
+      taskID: '',
+      projectID: window.localStorage.getItem('currentProjectID') || '',
+      parentID: '',
+      taskName: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      description: '',
+      leaders: convertToSelectIDMap(props.allMemberMap),
+      members: convertToSelectIDMap(props.allMemberMap),
+      allMemberMap: props.allMemberMap,
+    });
+  }, [props.whetherCreateTask]);
+
+  const getMemberName: (id: string) => string = (memberID: string) => {
+    return props.allMemberMap[memberID];
+  };
+
   const [whetherOpenSelectedMembers, setWhetherOpenSelectedMembers] = useState<
     boolean
   >(false);
@@ -122,12 +168,12 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
   };
 
   const handleCheckMember = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.currentTarget.name);
+    console.log(e.currentTarget.id);
     setTaskForm({
       ...taskForm,
       ['members']: {
         ...taskForm['members'],
-        [e.currentTarget.name]: e.currentTarget.checked,
+        [e.currentTarget.id]: e.currentTarget.checked,
       },
     });
   };
@@ -147,7 +193,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
     var newMembers: { [key: string]: boolean } = {};
 
     Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
-      if (!leader[1] && leader[0] != e.currentTarget.name)
+      if (!leader[1] && leader[0] != e.currentTarget.id)
         newMembers[leader[0]] = false;
     });
 
@@ -156,7 +202,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
       ['members']: newMembers,
       ['leaders']: {
         ...taskForm['leaders'],
-        [e.currentTarget.name]: e.currentTarget.checked,
+        [e.currentTarget.id]: e.currentTarget.checked,
       },
     });
     // setTaskForm({
@@ -218,12 +264,57 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
       ['members']: recoverMembers,
       ['leaders']: recoverLeaders,
     });
+    const confirmedTaskForm: CreateTaskInterface = {
+      ...taskForm,
+      ['members']: recoverMembers,
+      ['leaders']: recoverLeaders,
+    };
+    const leaderIDList: Array<string> = Object.entries(taskForm?.leaders || {})
+      .filter((leader: [string, boolean]) => leader[1])
+      .map((leader: [string, boolean]) => {
+        return leader[0];
+      });
+
+    const userWebAddTaskMessage: UserWebAddTaskMessage = {
+      type: 'UserWebAddTaskMessage',
+      newTask: {
+        taskName: taskForm?.taskName || '',
+        projectID: taskForm?.projectID || '',
+        parentID: taskForm?.parentID || '',
+        startDate: taskForm?.startDate?.toLocaleDateString() || '',
+        endDate: taskForm?.endDate?.toLocaleDateString() || '',
+        description: taskForm?.description || '',
+        leaderIDList: getSelectedListFromMap(taskForm?.leaders || {}),
+        userIDList: getSelectedListFromMap(taskForm?.members || {}),
+      },
+    };
+    const addTaskPromise = () =>
+      axios.post(`${serverAddress}/web`, JSON.stringify(userWebAddTaskMessage));
+    axios.all([addTaskPromise()]).then(
+      axios.spread((addTaskRst) => {
+        addTaskRst.data;
+      })
+    );
+
     props.handleAddTaskList(unchangedTaskForm);
     props.handleWhetherCreateTaskPanel(false);
   };
 
   const handleCancelClick = () => {
     props.handleWhetherCreateTaskPanel(false);
+  };
+
+  const getSelectMemberIDMapDialog = () => {
+    // console.log('get', taskForm?.members);
+    return (
+      <SelectMemberDialog
+        whetherSelectMember={whetherSelectMember}
+        handleWhetherSelectMember={handleWhetherSelectMember}
+        handleCheckMember={handleCheckMember}
+        memberIDSelectMap={taskForm?.members || {}}
+        handleCancelClick={handleCancelCheckMemberClick}
+      ></SelectMemberDialog>
+    );
   };
 
   return (
@@ -352,7 +443,9 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                     {Object.entries(taskForm?.leaders || {})
                       .filter((leader: [string, boolean], value) => leader[1])
                       .map((leader: [string, boolean]) => (
-                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={getMemberName(leader[0])}>
+                          {getMemberName(leader[0]).slice(0, 1)}
+                        </Avatar>
                       ))}
                   </AvatarGroup>
                 }
@@ -373,9 +466,11 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                       spacing={1}
                     >
                       <Grid item>
-                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={getMemberName(leader[0])} id={leader[0]}>
+                          {props.allMemberMap[leader[0]].slice(0, 1)}
+                        </Avatar>
                       </Grid>
-                      <Grid item>{leader[0]}</Grid>
+                      <Grid item>{getMemberName(leader[0])}</Grid>
                     </Grid>
                   ))}
               </Collapse>
@@ -390,13 +485,14 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
               >
                 选取组员
               </Button>
-              <SelectMemberDialog
+              {getSelectMemberIDMapDialog()}
+              {/* <SelectMemberDialog
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}
-                memberIDSelectMap={taskForm?.members || {}}
+                memberIDSelectMap={taskForm?.members||{}}
                 handleCancelClick={handleCancelCheckMemberClick}
-              ></SelectMemberDialog>
+              ></SelectMemberDialog> */}
             </ListItem>
             <ListItem
               id="picked-list-item"
@@ -410,7 +506,9 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                     {Object.entries(taskForm?.members || {})
                       .filter((member: [string, boolean], value) => member[1])
                       .map((member: [string, boolean]) => (
-                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={getMemberName(member[0])} id={member[0]}>
+                          {getMemberName(member[0]).slice(0, 1)}
+                        </Avatar>
                       ))}
                   </AvatarGroup>
                 }
@@ -431,9 +529,11 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                       spacing={1}
                     >
                       <Grid item>
-                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={getMemberName(member[0])}>
+                          {getMemberName(member[0]).slice(0, 1)}
+                        </Avatar>
                       </Grid>
-                      <Grid item>{member[0]}</Grid>
+                      <Grid item>{getMemberName(member[0])}</Grid>
                     </Grid>
                   ))}
               </Collapse>
