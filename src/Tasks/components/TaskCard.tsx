@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 10:54:07
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 13:35:48
+ * @LastEditTime: 2021-05-02 22:57:12
  */
 
 import {
@@ -32,10 +32,12 @@ import { ipcRenderer } from 'electron';
 import { CreateTaskInterface } from './CreateTaskDialog';
 import axios from 'axios';
 import { serverAddress } from '../../utils/globals';
+import { UserWebGetCompleteTaskInfoMessage } from '../Messages/UserWebGetCompleteTaskInfoMessage';
 
 interface TaskCardPropsInterface {
   readonly taskID: string;
   readonly openEditTaskPanel: () => void;
+  readonly handleSelectEditTask: (id: string) => void;
 }
 // case class TaskCompleteInfo(taskID: String, projectID: String, taskName: String, status: Boolean, startDate: String, endDate: String, description: String, parentID: String, parentName: String, childrenMap: Map[String, TaskStatusInfo], leaderID: String, leaderName: String, userMap: Map[String, String])
 
@@ -57,6 +59,7 @@ export interface TaskInterface {
   childrenMap: { [key: string]: TaskStatusInterface };
   leaderMap: { [key: string]: string };
   userMap: { [key: string]: string };
+  sessionDateMap: { [key: string]: Date};
 }
 export interface WebReplyTaskInterface {
   taskID: string;
@@ -71,17 +74,12 @@ export interface WebReplyTaskInterface {
   childrenMap: { [key: string]: TaskStatusInterface };
   leaderMap: { [key: string]: string };
   userMap: { [key: string]: string };
+  sessionDateMap: { [key: string]: string};
 }
 
-export interface WebReplyGetCompleteTaskInfoMessage {
-  types: string;
-  taskCompleteInfo: WebReplyTaskInterface;
-}
 
-export interface UserWebCompleteTaskInfoMessage {
-  type: string;
-  taskID: string;
-}
+
+
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -109,22 +107,34 @@ const useStyles = makeStyles((theme: Theme) =>
 export const TaskCard = (props: TaskCardPropsInterface) => {
   const classes = useStyles();
   const [initial, setInitial] = useState<number>(1);
+  console.log(initial);
   const [targetTask, setTargetTask] = useState<TaskInterface | null>();
   const [state, setState] = useState({
     drawer: false,
   });
 
   useEffect(() => {
-    const userWebCompleteTaskInfoMessage: UserWebCompleteTaskInfoMessage = {
-      type: 'UserWebCompleteTaskInfoMessage',
+    const userWebGetCompleteTaskInfoMessage: UserWebGetCompleteTaskInfoMessage = {
+      type: 'UserWebGetCompleteTaskInfoMessage',
       taskID: props.taskID,
     };
-    const getCompleteTaskInfoPromise = () => axios.post(`${serverAddress}/web`);
+    console.log('task card', props.taskID);
+    const getCompleteTaskInfoPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWebGetCompleteTaskInfoMessage)
+      );
     axios.all([getCompleteTaskInfoPromise()]).then(
       axios.spread((getCompleteTaskInfoRst) => {
         const webReplyTaskCompleteInfo: WebReplyTaskInterface =
           getCompleteTaskInfoRst.data.taskCompleteInfo;
-        const taskCompleteInfo: TaskInterface = {
+        var sessionDateMap: {[key: string]: Date} = {}
+        Object.entries(webReplyTaskCompleteInfo.sessionDateMap).map(
+          (sessionDate: [string, string]) => {
+            sessionDateMap[sessionDate[0]] = new Date(sessionDate[1])
+          }
+        )
+          const taskCompleteInfo: TaskInterface = {
           taskID: webReplyTaskCompleteInfo.taskID,
           taskName: webReplyTaskCompleteInfo.taskName,
           projectID: webReplyTaskCompleteInfo.projectID,
@@ -137,12 +147,13 @@ export const TaskCard = (props: TaskCardPropsInterface) => {
           childrenMap: webReplyTaskCompleteInfo.childrenMap,
           leaderMap: webReplyTaskCompleteInfo.leaderMap,
           userMap: webReplyTaskCompleteInfo.userMap,
+          sessionDateMap: sessionDateMap
         };
         setTargetTask(taskCompleteInfo);
       })
     );
-    setInitial(0);
-  }, [initial === 1]);
+    // setInitial(0);
+  }, [props.taskID]);
   const handleAssignerDrawer = () => {
     setState({ ...state, ['drawer']: !state['drawer'] });
   };
@@ -191,7 +202,10 @@ export const TaskCard = (props: TaskCardPropsInterface) => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={props.openEditTaskPanel}
+            onClick={() => {
+              props.handleSelectEditTask(targetTask?.taskID||"")
+              props.openEditTaskPanel()
+            }}
           >
             查看详情
           </Button>

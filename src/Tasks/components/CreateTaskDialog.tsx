@@ -43,6 +43,7 @@ import GroupIcon from '@material-ui/icons/Group';
 import { TaskStatusInterface } from './TaskCard';
 import { serverAddress } from '../../utils/globals';
 import axios from 'axios';
+import { UserWebAddTaskMessage } from '../Messages/UserWebAddTaskMessage';
 
 export interface CreateTaskInterface {
   taskID?: string;
@@ -58,26 +59,24 @@ export interface CreateTaskInterface {
   childrenMap?: { [key: string]: TaskStatusInterface };
 }
 
-export interface NewTaskInterface {
+
+export interface TaskAddResult {
+  outcome: boolean;
+  reason: string;
+  taskID: string;
   taskName: string;
-  projectID: string;
-  parentID: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  leaderIDList: Array<string>;
-  userIDList: Array<string>;
 }
 
-export interface UserWebAddTaskMessage {
+export interface WebReplyAddTaskMessage {
   type: string;
-  newTask: NewTaskInterface;
+  taskAddResult: TaskAddResult;
 }
 
 interface CreateTaskPropsInterface {
+  readonly parentID: string;
   readonly whetherCreateTask: boolean;
   readonly handleWhetherCreateTaskPanel: (val: boolean) => void;
-  readonly handleAddTaskList: (newTask: CreateTaskInterface) => void;
+  readonly handleAddTaskList: () => void;
   readonly allMemberMap: { [key: string]: string };
 }
 
@@ -104,10 +103,11 @@ export const getSelectedListFromMap = (map: { [id: string]: boolean }) => {
 };
 
 export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
+  console.log(props.parentID)
   const [taskForm, setTaskForm] = useState<CreateTaskInterface>({
     taskID: '',
     projectID: window.localStorage.getItem('currentProjectID') || '',
-    parentID: '',
+    parentID: props.parentID,
     taskName: '',
     startDate: new Date(),
     endDate: new Date(),
@@ -120,7 +120,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
     setTaskForm({
       taskID: '',
       projectID: window.localStorage.getItem('currentProjectID') || '',
-      parentID: '',
+      parentID: props.parentID,
       taskName: '',
       startDate: new Date(),
       endDate: new Date(),
@@ -269,11 +269,6 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
       ['members']: recoverMembers,
       ['leaders']: recoverLeaders,
     };
-    const leaderIDList: Array<string> = Object.entries(taskForm?.leaders || {})
-      .filter((leader: [string, boolean]) => leader[1])
-      .map((leader: [string, boolean]) => {
-        return leader[0];
-      });
 
     const userWebAddTaskMessage: UserWebAddTaskMessage = {
       type: 'UserWebAddTaskMessage',
@@ -292,12 +287,15 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
       axios.post(`${serverAddress}/web`, JSON.stringify(userWebAddTaskMessage));
     axios.all([addTaskPromise()]).then(
       axios.spread((addTaskRst) => {
-        addTaskRst.data;
+        const webReplyAddTaskMessage: WebReplyAddTaskMessage = addTaskRst.data
+        const taskAddResult: TaskAddResult = webReplyAddTaskMessage.taskAddResult;
+        if(taskAddResult.outcome) {
+          props.handleAddTaskList();
+        }
       })
     );
-
-    props.handleAddTaskList(unchangedTaskForm);
     props.handleWhetherCreateTaskPanel(false);
+
   };
 
   const handleCancelClick = () => {
@@ -313,6 +311,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
         handleCheckMember={handleCheckMember}
         memberIDSelectMap={taskForm?.members || {}}
         handleCancelClick={handleCancelCheckMemberClick}
+        allMemberMap={taskForm?.allMemberMap || {}}
       ></SelectMemberDialog>
     );
   };
@@ -428,6 +427,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 handleCheckMember={handleCheckLeader}
                 memberIDSelectMap={taskForm?.leaders || {}}
                 handleCancelClick={handleCancelCheckLeaderClick}
+                allMemberMap={taskForm?.allMemberMap||{}}
               ></SelectMemberDialog>
             </ListItem>
 

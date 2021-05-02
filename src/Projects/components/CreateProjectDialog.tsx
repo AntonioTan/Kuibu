@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 00:12:37
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 00:05:31
+ * @LastEditTime: 2021-05-02 12:08:18
  */
 
 import {
@@ -31,7 +31,7 @@ import {
 import React, { useContext, useEffect, useState } from 'react';
 import CloseIcon from '@material-ui/icons/Close';
 import { Flipped } from 'react-flip-toolkit';
-import { SelectMemberDialog } from '../../Tasks/components/SelectMemberDialog';
+import { SelectMemberDialog } from '../../Tasks/Components/SelectMemberDialog';
 import GroupIcon from '@material-ui/icons/Group';
 import { fakeMembers } from '../../utils/mock';
 import { AvatarGroup } from '@material-ui/lab';

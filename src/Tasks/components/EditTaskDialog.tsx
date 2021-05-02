@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-16 09:29:30
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 15:25:06
+ * @LastEditTime: 2021-05-02 22:58:53
  */
 
 import {
@@ -54,39 +54,57 @@ import FlagIcon from '@material-ui/icons/Flag';
 import GroupIcon from '@material-ui/icons/Group';
 import AddIcon from '@material-ui/icons/Add';
 
-import { CreateTaskDialog, CreateTaskInterface } from './CreateTaskDialog';
+import { convertToSelectIDMap, CreateTaskDialog, CreateTaskInterface } from './CreateTaskDialog';
 import {
   TaskInterface,
   TaskStatusInterface,
-  UserWebCompleteTaskInfoMessage,
   WebReplyTaskInterface,
 } from './TaskCard';
 import axios from 'axios';
 import { serverAddress } from '../../utils/globals';
+import { UserWebGetCompleteTaskInfoMessage } from '../Messages/UserWebGetCompleteTaskInfoMessage';
 
 interface EditTaskPropsInterface {
   readonly whetherEditTask: boolean;
   readonly handleWhetherEditTaskPanel: (val: boolean) => void;
+  readonly allMemberMap: {[key: string]: string};
   taskID: string;
 }
 
 export const EditTaskDialog = (props: EditTaskPropsInterface) => {
   const [initial, setInitial] = useState<number>(1);
+  const [taskID, setTaskID] = useState<string>(props.taskID);
   const [taskForm, setTaskForm] = useState<CreateTaskInterface | null>();
   const [targetTask, setTargetTask] = useState<TaskInterface | null>();
   // Create Task Park Logic
   const [whetherCreateTask, setWhetherCreateTask] = useState<boolean>(false);
+  const [allMemberMap, setAllMemberMap] = useState<{[key: string]: string}>({});
+  useEffect(() => {
+    setTaskID(props.taskID)
+  }, [props.whetherEditTask])
 
   useEffect(() => {
-    const userWebCompleteTaskInfoMessage: UserWebCompleteTaskInfoMessage = {
-      type: 'UserWebCompleteTaskInfoMessage',
-      taskID: props.taskID,
+    console.log(taskID)
+    if(taskID!="") {
+    const userWebGetCompleteTaskInfoMessage: UserWebGetCompleteTaskInfoMessage = {
+      type: 'UserWebGetCompleteTaskInfoMessage',
+      taskID: taskID,
     };
-    const getCompleteTaskInfoPromise = () => axios.post(`${serverAddress}/web`);
+    const getCompleteTaskInfoPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWebGetCompleteTaskInfoMessage)
+      );
     axios.all([getCompleteTaskInfoPromise()]).then(
       axios.spread((getCompleteTaskInfoRst) => {
         const webReplyTaskCompleteInfo: WebReplyTaskInterface =
           getCompleteTaskInfoRst.data.taskCompleteInfo;
+          var sessionDateMap: {[key: string]: Date} = {}
+          Object.entries(webReplyTaskCompleteInfo.sessionDateMap).map(
+            (sessionDate: [string, string]) => {
+              sessionDateMap[sessionDate[0]] = new Date(sessionDate[1])
+            }
+          )
         const taskCompleteInfo: TaskInterface = {
           taskID: webReplyTaskCompleteInfo.taskID,
           taskName: webReplyTaskCompleteInfo.taskName,
@@ -100,26 +118,31 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
           childrenMap: webReplyTaskCompleteInfo.childrenMap,
           leaderMap: webReplyTaskCompleteInfo.leaderMap,
           userMap: webReplyTaskCompleteInfo.userMap,
+          sessionDateMap: sessionDateMap,
         };
+        setTaskID(taskCompleteInfo.taskID);
         setTargetTask(taskCompleteInfo);
-        var leaders: { [key: string]: boolean } = {};
+        var leaders: { [key: string]: boolean } = convertToSelectIDMap(props.allMemberMap);
         var members: { [key: string]: boolean } = {};
-        const allMemberMap: { [key: string]: string } = Object.assign(
-          {},
-          taskCompleteInfo.leaderMap,
-          taskCompleteInfo.userMap
-        );
+
         Object.entries(taskCompleteInfo.leaderMap).map(
           (leader: [string, string]) => {
+            console.log(leader[0])
             leaders[leader[0]] = true;
           }
         );
         Object.entries(taskCompleteInfo.userMap).map(
           (member: [string, string]) => {
-            leaders[member[0]] = false;
+            // leaders[member[0]] = false;
+            console.log(member[0])
             members[member[0]] = true;
           }
         );
+        Object.entries(leaders).map(
+          (leader: [string, boolean]) => {
+            if(members[leader[0]]!=true&&leader[1]==false) members[leader[0]] = false;
+          }
+        )
         const taskForm: CreateTaskInterface = {
           taskID: taskCompleteInfo.taskID,
           taskName: taskCompleteInfo.taskName,
@@ -130,20 +153,24 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
           description: taskCompleteInfo.description,
           leaders: leaders,
           members: members,
-          allMemberMap: allMemberMap,
+          allMemberMap: props.allMemberMap,
           childrenMap: taskCompleteInfo.childrenMap,
         };
+        console.log(taskForm?.allMemberMap)
+        setAllMemberMap(taskForm?.allMemberMap||{});
         setTaskForm(taskForm);
-      })
-    );
-    setInitial(0);
-  }, [initial === 1]);
+        })
+    )
+        setInitial(0)
+      }
+  }, [initial,props.whetherEditTask,taskID]);
 
   const handleWhetherCreateTask = (val: boolean) => {
     setWhetherCreateTask(val);
   };
 
-  const handleAddTaskList = (newTask: CreateTaskInterface) => {
+  const handleAddTaskList = () => {
+    setInitial(1);
     // var newChildrenList: Array<CreateTaskInterface> = [];
     // Object.assign(newChildrenList, taskForm['childrenList']);
     // newChildrenList.push(newTask);
@@ -191,7 +218,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
       ...taskForm,
       ['members']: {
         ...taskForm?.members,
-        [e.currentTarget.name]: e.currentTarget.checked,
+        [e.currentTarget.id]: e.currentTarget.checked,
       },
     });
   };
@@ -211,7 +238,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
     var newMembers: { [key: string]: boolean } = {};
 
     Object.entries(taskForm?.leaders || {}).map((leader: [string, boolean]) => {
-      if (!leader[1] && leader[0] != e.currentTarget.name)
+      if (!leader[1] && leader[0] != e.currentTarget.id)
         newMembers[leader[0]] = false;
     });
 
@@ -220,13 +247,9 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
       ['members']: newMembers,
       ['leaders']: {
         ...taskForm?.leaders,
-        [e.currentTarget.name]: e.currentTarget.checked,
+        [e.currentTarget.id]: e.currentTarget.checked,
       },
     });
-    // setTaskForm({
-    //   ...taskForm,
-    //   ['members']: newMembers,
-    // });
   };
 
   const handleCancelCheckLeaderClick = () => {
@@ -281,6 +304,36 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
     setWhetherCreateTask(true);
   };
 
+  const handleGoToParentTaskClick = () => {
+    setTaskID(taskForm?.parentID||taskID)
+  }
+
+  const getMemberName: (id: string) => string = (memberID: string) => {
+    const allMemberMap = taskForm?.allMemberMap || {}
+    const memberName = allMemberMap[memberID] || ""
+    return memberName
+  }
+
+  const getChildTaskMemberMap: () => {[key: string]: string} = () => {
+    var childTaskMemberMap: {[key: string]: string} = {}
+    Object.entries(taskForm?.leaders||{}).map(
+      (leader: [string, boolean]) => {
+        if(leader[1]) {
+          childTaskMemberMap[leader[0]] = getMemberName(leader[0])
+        }
+      }
+    )
+    Object.entries(taskForm?.members||{}).map(
+      (member: [string, boolean]) => {
+        if(member[1]) {
+          childTaskMemberMap[member[0]] = getMemberName(member[0])
+        }
+      }
+    )
+    return childTaskMemberMap;
+  }
+
+
   return (
     <Dialog
       open={props.whetherEditTask}
@@ -301,11 +354,10 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
             </Typography>
           </Grid>
           <Grid item>
-            <IconButton>
+            {taskForm?.parentID!=''?(<IconButton onClick={handleGoToParentTaskClick}>
               <AssignmentReturnIcon color="primary" />
-            </IconButton>
-          </Grid>
-          <Grid item>
+            </IconButton>):<div></div>}
+
             <IconButton
               style={{ right: 0 }}
               onClick={() => props.handleWhetherEditTaskPanel(false)}
@@ -330,7 +382,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 ></Input>
               </FormControl> */}
               <FormControl>
-                <InputLabel htmlFor="taskName">任务名称</InputLabel>
+                <InputLabel htmlFor="taskName" shrink={true}>任务名称</InputLabel>
                 <Input
                   id="taskName"
                   value={taskForm?.taskName}
@@ -409,6 +461,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 handleCheckMember={handleCheckLeader}
                 memberIDSelectMap={taskForm?.leaders || {}}
                 handleCancelClick={handleCancelCheckLeaderClick}
+                allMemberMap={allMemberMap}
               ></SelectMemberDialog>
             </ListItem>
 
@@ -423,9 +476,11 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                   <AvatarGroup max={2}>
                     {Object.entries(taskForm?.leaders || {})
                       .filter((leader: [string, boolean], value) => leader[1])
-                      .map((leader: [string, boolean]) => (
-                        <Avatar alt={leader[0]}>{leader[0].slice(0, 1)}</Avatar>
-                      ))}
+                      .map((leader: [string, boolean]) => {
+                        const leaderName = getMemberName(leader[0])
+                        return (
+                        <Avatar alt={leaderName}>{leaderName.slice(0, 1)}</Avatar>
+                      )})}
                   </AvatarGroup>
                 }
                 style={{ fontSize: '14px' }}
@@ -437,7 +492,9 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
               <Collapse in={whetherOpenSelectedLeaders}>
                 {Object.entries(taskForm?.leaders || {})
                   .filter((leader: [string, boolean], value) => leader[1])
-                  .map((leader: [string, boolean]) => (
+                  .map((leader: [string, boolean]) => {
+                    const leaderName = getMemberName(leader[0]);
+                    return (
                     <Grid
                       container
                       direction="row"
@@ -445,14 +502,14 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                       spacing={1}
                     >
                       <Grid item>
-                        <Avatar alt={taskForm?.allMemberMap?.leader[0] || ''}>
-                          {' '}
-                          {taskForm?.allMemberMap?.leader[0].slice(0, 1)}
+                        <Avatar alt={leaderName}>
+                          {leaderName.slice(0, 1)}
                         </Avatar>
                       </Grid>
-                      <Grid item>{leader[0]}</Grid>
+                      <Grid item>{leaderName}</Grid>
                     </Grid>
-                  ))}
+                  )
+                  })}
               </Collapse>
             </ListItem>
             <Divider></Divider>
@@ -471,6 +528,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 handleCheckMember={handleCheckMember}
                 memberIDSelectMap={taskForm?.members || {}}
                 handleCancelClick={handleCancelCheckMemberClick}
+                allMemberMap={allMemberMap}
               ></SelectMemberDialog>
             </ListItem>
             <ListItem
@@ -483,13 +541,14 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 secondary={
                   <AvatarGroup max={4}>
                     {Object.entries(taskForm?.members || {})
-                      .filter((member: [string, boolean], value) => member[1])
-                      .map((member: [string, boolean]) => (
-                        <Avatar alt={taskForm?.allMemberMap?.member[0] || ''}>
-                          {' '}
-                          {taskForm?.allMemberMap?.member[0].slice(0, 1)}
+                      .filter((member: [string, boolean]) => member[1])
+                      .map((member: [string, boolean]) => {
+                        const memberName = getMemberName(member[0])
+                        return (
+                        <Avatar alt={memberName}>
+                          {memberName.slice(0,1)}
                         </Avatar>
-                      ))}
+                      )})}
                   </AvatarGroup>
                 }
                 style={{ fontSize: '14px' }}
@@ -501,7 +560,9 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
               <Collapse in={whetherOpenSelectedMembers}>
                 {Object.entries(taskForm?.members || {})
                   .filter((member: [string, boolean], value) => member[1])
-                  .map((member: [string, boolean]) => (
+                  .map((member: [string, boolean]) => {
+                    const memberName = getMemberName(member[0])
+                    return(
                     <Grid
                       container
                       direction="row"
@@ -509,17 +570,17 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                       spacing={1}
                     >
                       <Grid item>
-                        <Avatar alt={member[0]}>{member[0].slice(0, 1)}</Avatar>
+                        <Avatar alt={memberName}>{memberName.slice(0, 1)}</Avatar>
                       </Grid>
-                      <Grid item>{member[0]}</Grid>
+                      <Grid item>{memberName}</Grid>
                     </Grid>
-                  ))}
+                  )})}
               </Collapse>
             </ListItem>
             <Divider></Divider>
             <ListItem id="task-escription-list-item">
               <FormControl>
-                <InputLabel htmlFor="taskDescription">任务描述</InputLabel>
+                <InputLabel htmlFor="taskDescription" shrink={true}>任务描述</InputLabel>
                 <Input
                   id="taskDescription"
                   value={taskForm?.description}
@@ -554,12 +615,16 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                             <AddIcon color="primary" />
                           </IconButton>
                           <CreateTaskDialog
+                            parentID={taskID}
                             whetherCreateTask={whetherCreateTask}
                             handleWhetherCreateTaskPanel={
                               handleWhetherCreateTask
                             }
                             handleAddTaskList={handleAddTaskList}
-                            allMemberMap={taskForm?.allMemberMap || {}}
+                            allMemberMap={
+                              getChildTaskMemberMap()
+                              // taskForm?.allMemberMap || {}
+                            }
                           ></CreateTaskDialog>
                         </Grid>
                       </Grid>
@@ -584,7 +649,11 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                                 {child[1].status ? '已完成' : '未完成'}
                               </Grid>
                               <Grid item>
-                                <Button variant="outlined" color="primary">
+                                <Button variant="outlined" color="primary" onClick={()=>{
+                                  console.log("child id", child[0])
+                                  setTaskID(child[0])
+                                  setInitial(1)
+                                }}>
                                   编辑
                                 </Button>
                               </Grid>

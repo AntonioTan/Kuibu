@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-10 21:38:32
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 17:41:32
+ * @LastEditTime: 2021-05-02 15:53:15
  */
 import {
   Button,
@@ -70,7 +70,7 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
       })
     );
     setInitial(0);
-  }, [initial == 1]);
+  }, [props.whetherSelectMember]);
 
   const handleConfirmClick = () => {
     setInitial(1);

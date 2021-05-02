@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 16:40:11
+ * @LastEditTime: 2021-05-02 21:39:23
  */
 
 import {
@@ -35,11 +35,8 @@ import { UserContext } from '../../utils/components/UserContext';
 import { serverAddress } from '../../utils/globals';
 import axios from 'axios';
 import { ProjectCard } from '../../Projects/components/dist/ProjectCard';
+import { UserWebGetCompleteProjectInfoMessage } from '../Messages/UserWebGetCompleteProjectInfoMessage';
 
-export interface UserWebGetCompleteProjectInfoMessage {
-  type: string;
-  projectID: string;
-}
 
 export interface ProjectCompleteInfoInterface {
   projectID: string;
@@ -79,7 +76,6 @@ function sessionTabProps(index: number) {
   return {
     value: index,
     key: index,
-    id: `vertical-session-tab-${index}`,
     style: { backgroundColor: '#12879c', color: '#d7ebed' },
   };
 }
@@ -176,7 +172,8 @@ ws2.onmessage = (e) => {
 
 export const HomePage = () => {
   const userContext = React.useContext(UserContext);
-  const [initialState, setInitialState] = React.useState<number>(1);
+  const [functionID, setFunctionID] = React.useState('vertical-function-tab-0');
+  const [initial, setInitial] = React.useState<number>(1);
   const [
     currentProject,
     setCurrentProject,
@@ -193,6 +190,7 @@ export const HomePage = () => {
         `${serverAddress}/web`,
         JSON.stringify(userWebGetCompleteProjectInfoMessage)
       );
+
     axios.all([getCompleteProjectInfoPromise()]).then(
       axios.spread((getCompleteProjectInfoRst) => {
         const webReplyCompleteProjectInfo: WebReplyProjectCompleteInfoInterface =
@@ -213,10 +211,10 @@ export const HomePage = () => {
           taskMap: webReplyCompleteProjectInfo.taskMap,
         };
         setCurrentProject(projectCompleteInfo);
-        setInitialState(0);
+        setInitial(0);
       })
     );
-  }, [initialState == 1]);
+  }, [initial]);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean
   >(0);
@@ -224,7 +222,6 @@ export const HomePage = () => {
   const [discussionTabExpanded, setDiscussionTabExpanded] = React.useState(
     false
   );
-  const [functionID, setFunctionID] = React.useState('vertical-function-tab-0');
   const handleFunctionTabChange = (event: any, newValue: number) => {
     setFunctionID(event.currentTarget.id);
     if (typeof newValue === typeof 1) {
@@ -266,8 +263,8 @@ export const HomePage = () => {
           aria-label="Vertical tabs sessions"
           style={{ width: '150px' }}
         >
-          {sessionData.map((sessionName, index) => {
-            return <Tab label={sessionName} {...sessionTabProps(index)} />;
+          {Object.entries(currentProject?.sessionMap||{}).map((session: [string, string], index: number) => {
+            return <Tab id={session[0]} label={session[1]} {...sessionTabProps(index)} />;
           })}
         </Tabs>
       </AccordionDetails>

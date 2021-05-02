@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 09:31:10
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-23 22:34:20
+ * @LastEditTime: 2021-05-02 18:43:55
  */
 import {
   Button,
@@ -39,7 +39,7 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import SearchBar from 'material-ui-search-bar';
 import AddBox from '@material-ui/icons/AddBox';
 import React, { useEffect, useState } from 'react';
-import { TaskCard } from './components/TaskCard';
+import { TaskCard } from './Components/TaskCard';
 import CloseIcon from '@material-ui/icons/Close';
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -54,10 +54,12 @@ import { CheckBox } from '@material-ui/icons';
 import {
   CreateTaskDialog,
   CreateTaskInterface,
-} from './components/CreateTaskDialog';
-import { EditTaskDialog } from './components/EditTaskDialog';
+} from './Components/CreateTaskDialog';
+import { EditTaskDialog } from './Components/EditTaskDialog';
 import { serverAddress } from '../utils/globals';
 import axios from 'axios';
+import { UserWebGetTasksInfoMessage } from './Messages/UserWebGetTasksInfoMessage';
+import { WebReplyGetTasksInfoMessage } from './Messages/WebReplyGetTasksInfoMessage';
 
 const originalTaskNames = [
   '完成开题报告',
@@ -76,10 +78,7 @@ interface TasksPanelInterface {
 }
 
 export const TasksPanel = (props: TasksPanelInterface) => {
-  console.log('task panel all member', props?.allMemberMap);
-  const [taskMap, setTaskMap] = useState<{ [key: string]: string }>(
-    props?.taskMap || {}
-  );
+  const [taskMap, setTaskMap] = useState<{ [key: string]: string }>({});
   const [initial, setInitial] = useState<number>(1);
   const [searched, setSearched] = useState<string>('');
   const [allMemberMap, setAllMemberMap] = useState<{
@@ -92,6 +91,33 @@ export const TasksPanel = (props: TasksPanelInterface) => {
   const [whetherSelectMember, setWhetherSelectMember] = useState<boolean>(
     false
   );
+  const [editTaskID, setEditTaskID] = useState<string>("");
+
+  React.useEffect(() => {
+    console.log('here initial');
+    const currentProjectID: string =
+      window.localStorage.getItem('currentProjectID') || '';
+    const userWebGetTasksInfoMessage: UserWebGetTasksInfoMessage = {
+      type: 'UserWebGetTasksInfoMessage',
+      projectID: currentProjectID,
+    };
+    const getTasksInfoPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWebGetTasksInfoMessage)
+      );
+    axios.all([getTasksInfoPromise()]).then(
+      axios.spread((getTasksInfoRst) => {
+        const webReplyGetTasksInfoMessage: WebReplyGetTasksInfoMessage =
+          getTasksInfoRst.data;
+        setTaskMap(webReplyGetTasksInfoMessage.taskMap);
+        if(Object.entries(webReplyGetTasksInfoMessage.taskMap).length>0) {
+          setEditTaskID(Object.entries(webReplyGetTasksInfoMessage.taskMap)[0][0])
+        }
+      })
+    );
+  }, [initial]);
+
   const [taskList, setTaskList] = useState<Array<CreateTaskInterface>>([]);
 
   const requestSearch = (searchedVal: string) => {
@@ -126,16 +152,18 @@ export const TasksPanel = (props: TasksPanelInterface) => {
     setWhetherEditTask(true);
   };
 
-  const handleAddTaskList = (newTaskMap: { [key: string]: string }) => {
-    setTaskMap({
-      ...taskMap,
-      ...newTaskMap,
-    });
+  const handleSelectEditTask = (id: string) => {
+    setEditTaskID(id);
+  }
+
+  const handleAddTaskList = () => {
+    setInitial(initial+1);
   };
 
   const getCreateTaskDialog = () => {
     return (
       <CreateTaskDialog
+      parentID=""
         whetherCreateTask={whetherCreateTask}
         handleWhetherCreateTaskPanel={handleWhetherCreateTask}
         handleAddTaskList={handleAddTaskList}
@@ -165,8 +193,8 @@ export const TasksPanel = (props: TasksPanelInterface) => {
           width: '700px',
           height: '600px',
         }}
-
-        // justify="center"
+        alignItems="center"
+        spacing={2}
       >
         <Grid item>
           <Grid container direction="row" justify="center" alignItems="center">
@@ -188,7 +216,7 @@ export const TasksPanel = (props: TasksPanelInterface) => {
             </Grid>
           </Grid>
         </Grid>
-        {getCreateTaskDialog()}
+
         {/* <CreateTaskDialog
           whetherCreateTask={whetherCreateTask}
           handleWhetherCreateTaskPanel={handleWhetherCreateTask}
@@ -196,23 +224,28 @@ export const TasksPanel = (props: TasksPanelInterface) => {
           allMemberMap={props?.allMemberMap || {}}
         ></CreateTaskDialog> */}
         <Grid item>
+        {getCreateTaskDialog()}
           <Grid container direction="row" justify="space-evenly" spacing={2}>
-            {Object.entries(taskMap).map((task: [string, string]) => {
+            {Object.entries(taskMap || {}).map((task: [string, string]) => {
+              console.log(task[1]);
               return (
                 <Grid item style={{ width: '340px' }}>
                   <TaskCard
                     openEditTaskPanel={openEditTaskPanel}
                     taskID={task[0]}
+                    handleSelectEditTask={handleSelectEditTask}
                   ></TaskCard>
-                  <EditTaskDialog
-                    whetherEditTask={whetherEditTask}
-                    handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
-                    taskID={task[0]}
-                  ></EditTaskDialog>
+
                 </Grid>
               );
             })}
           </Grid>
+          <EditTaskDialog
+                    whetherEditTask={whetherEditTask}
+                    handleWhetherEditTaskPanel={handleWhetherEditTaskPanel}
+                    taskID={editTaskID}
+                    allMemberMap={props?.allMemberMap || {}}
+                  ></EditTaskDialog>
         </Grid>
       </Grid>
     </div>
