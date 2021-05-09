@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-08 22:04:25
+ * @LastEditTime: 2021-05-09 10:32:12
  */
 
 import {
@@ -42,7 +42,7 @@ import CalendarPanel from '../../Calendar/CalendarPanel';
 import { UserWebWSInitializeMessage } from '../Messages/UserWsInitializeMessage';
 import { WebReplyWSInitializeMessage } from '../Messages/WebReplyWSInitializeMessage';
 import { PrintOutlined } from '@material-ui/icons';
-import { SyncEditPanel } from '../../SyncEdit/SyncEditPanel';
+import { SyncEditPanel } from '../../SyncEdit/Components/SyncEditPanel';
 
 
 export interface ProjectCompleteInfoInterface {

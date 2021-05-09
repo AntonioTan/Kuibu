@@ -7,7 +7,7 @@
  * @LastEditTime: 2021-05-09 00:08:08
  */
 import React from 'react'
-import { EditDetailPanel } from './EditDetailPanel';
+import { EditDetailPanel } from '../EditDetailPanel';
 import { TaskListPanel } from './TaskListPanel';
 
 export const SyncEditPanel = function(props: any) {

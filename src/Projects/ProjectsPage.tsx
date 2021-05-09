@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-06 15:56:24
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-20 16:26:04
+ * @LastEditTime: 2021-05-09 16:29:52
  */
 import {
   Card,
@@ -23,7 +23,6 @@ import { KuibuAppBar } from '../utils/components/KuibuAppBar';
 import { ProjectCard } from './components/ProjectCard';
 import SearchBar from 'material-ui-search-bar';
 import AddBox from '@material-ui/icons/AddBox';
-import CloseIcon from '@material-ui/icons/Close';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import {
   CreateProjectDialog,
@@ -40,6 +39,7 @@ import {
   UserWebBasicUserInfoMessage,
   WebReplyBasicUserInfoMessage,
 } from '../Login/views/LoginPanel';
+import { KuibuNotifyBar } from '../utils/components/KuibuNotifyBar';
 
 export interface UserWebBasicProjectsInfoMessage {
   type: string;
@@ -239,7 +239,7 @@ export const ProjectsPage = () => {
           justify="flex-start"
           spacing={1}
         >
-          <KuibuAppBar></KuibuAppBar>
+          <KuibuNotifyBar></KuibuNotifyBar>
           <Grid item>
             <Grid
               container

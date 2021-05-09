@@ -103,6 +103,7 @@ export const getSelectedListFromMap = (map: { [id: string]: boolean }) => {
 };
 
 export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
+  const userID = window.localStorage.getItem("userID")||""
   console.log(props.parentID)
   const [taskForm, setTaskForm] = useState<CreateTaskInterface>({
     taskID: '',
@@ -363,7 +364,7 @@ export const CreateTaskDialog = (props: CreateTaskPropsInterface) => {
                 <Input
                   id="leader"
                   disabled={true}
-                  value="谭天一"
+                  value={getMemberName(userID)}
                   style={{ width: '350px' }}
                 ></Input>
               </FormControl>

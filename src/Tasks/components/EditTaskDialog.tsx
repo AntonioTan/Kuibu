@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-16 09:29:30
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-02 22:58:53
+ * @LastEditTime: 2021-05-09 10:45:13
  */
 
 import {
@@ -72,6 +72,7 @@ interface EditTaskPropsInterface {
 }
 
 export const EditTaskDialog = (props: EditTaskPropsInterface) => {
+  const userID = window.localStorage.getItem("userID")||""
   const [initial, setInitial] = useState<number>(1);
   const [taskID, setTaskID] = useState<string>(props.taskID);
   const [taskForm, setTaskForm] = useState<CreateTaskInterface | null>();
@@ -99,12 +100,12 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
       axios.spread((getCompleteTaskInfoRst) => {
         const webReplyTaskCompleteInfo: WebReplyTaskInterface =
           getCompleteTaskInfoRst.data.taskCompleteInfo;
-          var sessionDateMap: {[key: string]: Date} = {}
-          Object.entries(webReplyTaskCompleteInfo.sessionDateMap).map(
+        var sessionDateMap: {[key: string]: Date} = {}
+        Object.entries(webReplyTaskCompleteInfo.sessionDateMap).map(
             (sessionDate: [string, string]) => {
               sessionDateMap[sessionDate[0]] = new Date(sessionDate[1])
             }
-          )
+         )
         const taskCompleteInfo: TaskInterface = {
           taskID: webReplyTaskCompleteInfo.taskID,
           taskName: webReplyTaskCompleteInfo.taskName,
@@ -397,7 +398,7 @@ export const EditTaskDialog = (props: EditTaskPropsInterface) => {
                 <Input
                   id="leader"
                   disabled={true}
-                  value="谭天一"
+                  value={getMemberName(userID)}
                   style={{ width: '350px' }}
                 ></Input>
               </FormControl>
