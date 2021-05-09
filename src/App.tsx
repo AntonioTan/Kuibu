@@ -4,13 +4,13 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 12:35:50
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-17 23:51:56
+ * @LastEditTime: 2021-05-06 12:04:10
  */
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { Container, Row, Col } from 'react-grid-system';
 // import icon from '../assets/icon.svg';
-// import './App.global.css';
+import './App.global.css';
 import 'antd/dist/antd.css';
 // import {Button} from '';
 import { makeStyles } from '@material-ui/core/styles';

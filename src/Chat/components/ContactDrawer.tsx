@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function ContactDrawer(props: any) {
   const classes = useStyles(props.theme);
 
-  axios.get('http://127.0.0.1:8080/events').then((e) => console.log(e));
+  axios.get('http://127.0.0.1:8080/web').then((e) => console.log(e));
   // const ws2 = new WebSocket('ws:127.0.0.1:8080/events');
   // ws2.onmessage = (e) => {
   //   console.log(e);

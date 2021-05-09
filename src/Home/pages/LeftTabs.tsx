@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-18 14:36:41
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-08 10:30:27
+ * @LastEditTime: 2021-05-05 20:39:12
  */
 
 import React, { useEffect } from 'react';
@@ -38,7 +38,7 @@ import Drawer from '@material-ui/core/Drawer';
 import remote, { ipcRenderer } from 'electron';
 import { Icon, Menu, MenuItem } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
-import ChatPage from '../../Chat/pages/ChatPage';
+import ChatPanel from '../../Chat/ChatPanel';
 import ContactDrawer from '../../Chat/components/ContactDrawer';
 import { KuibuTitle } from '../../utils/components/KuibuTitle';
 
@@ -420,7 +420,6 @@ export default function VerticalTabs() {
           eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
           posuere sollicitudin aliquam ultrices sagittis orci a.
         </Typography>
-        <ChatPage></ChatPage>
       </main>
     </div>
   );

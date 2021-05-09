@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-08 00:12:37
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-02 12:08:18
+ * @LastEditTime: 2021-05-08 22:17:53
  */
 
 import {
@@ -270,6 +270,7 @@ export const CreateProjectDialog = (props: CreateProjectPropsInterface) => {
                 选取组员
               </Button>
               <SelectMemberDialog
+                allMemberMap={projectForm.memberMap||{}}
                 whetherSelectMember={whetherSelectMember}
                 handleWhetherSelectMember={handleWhetherSelectMember}
                 handleCheckMember={handleCheckMember}

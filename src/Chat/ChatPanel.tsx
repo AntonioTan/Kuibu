@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-19 19:03:06
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-15 23:36:00
+ * @LastEditTime: 2021-05-08 19:05:37
  */
 import React, { useState, KeyboardEvent } from 'react';
 import {
@@ -21,61 +21,120 @@ import {
   Paper,
   InputBase,
   IconButton,
+  Snackbar,
 } from '@material-ui/core';
 import InfiniteScroll from 'react-infinite-scroller';
 import { MessageBox } from './components/MessageBox';
 import SendIcon from '@material-ui/icons/Send';
+import { UserWebGetSessionInfoMessage } from './Messages/UserWebGetSessionInfoMessage';
+import axios from 'axios';
+import { serverAddress } from '../utils/globals';
+import { ChatMessage } from './DataInterface/ChatMessage';
+import { WebReplyGetSessionInfoMessage } from './Messages/WebReplyGetSessionInfoMessage';
+import { ChatSessionInfoInterface } from './DataInterface/ChatSessionInfoInterface';
+import { ChangeEvent } from 'react';
+import { ChatMessageInterface } from './DataInterface/ChatMessageInterface';
+import { UserWsChatMessage } from './Messages/UserWsChatMessage';
+import Alert from '@material-ui/lab/Alert';
+import { SnackBarInterface } from '../Login/views/LoginPanel';
 
-interface ChatMessageInterface {
+
+interface ChatPanelInterface {
   sessionID: string;
-  senderID: string;
-  senderName: string;
-  message: string;
 }
 
-const fakeMessageList: Array<ChatMessageInterface> = [
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'cccccccccc',
-    senderName: 'Hello',
-    message: 'World',
-  },
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'cccccccccc',
-    senderName: 'Hello',
-    message: 'World1',
-  },
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'cccccccccc',
-    senderName: 'Hello',
-    message: 'World2',
-  },
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'cccccccccc',
-    senderName: 'Hello',
-    message:
-      'World3WorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorldWorld33333333333333333333',
-  },
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'cccccccccc',
-    senderName: 'Hello',
-    message: 'World4',
-  },
-  {
-    sessionID: 'bbbbbbbbbb',
-    senderID: 'aaaaaaaaaa',
-    senderName: 'Tianyi Tan',
-    message: 'World4',
-  },
-];
 
 const fakeSelfID = 'aaaaaaaaaa';
 
-export default function ChatPanel() {
+export default function ChatPanel(props: ChatPanelInterface) {
+  console.log(props.sessionID)
+  const scrollRef = React.useRef(null);
+  const [selfID, setSelfID] = React.useState<string>("");
+  const [initial, setInitial] = React.useState<number>(1);
+  const [myWS, setMyWS] = React.useState<WebSocket>(new WebSocket(`ws:127.0.0.1:8080/ws?userID=${window.localStorage.getItem("userID")}`))
+  const [chatInputValue, setChatInputValue] = React.useState<string>("")
+  const [chatSessionInfo, setChatSessionInfo] = React.useState<ChatSessionInfoInterface>({
+    sessionID: props.sessionID,
+    sessionName: "正在获取...",
+    userMap: {},
+    taskID: "",
+    chatMessageList: [],
+  });
+  const [chatMessage, setChatMessage] = React.useState<ChatMessageInterface>({
+    sessionID: props.sessionID,
+    senderID: "",
+    message: "",
+    sendDate: "",
+  })
+
+  const [whetherOpenAlertSnackBar, setWhetherOpenAlertSnackBar] = React.useState<boolean>(false)
+  const [alertSnackBar, setAlertSnackBar] = useState<SnackBarInterface>({
+    snackBarTitle: '',
+    snackBarContent: '',
+  });
+  const handleAlertSnackBarClose = () => {
+    setWhetherOpenAlertSnackBar(false);
+  };
+
+  React.useEffect(() => {
+    const userID = window.localStorage.getItem("userID")||""
+    setSelfID(userID);
+    setChatMessage({
+      ...chatMessage,
+      ['sessionID']: props.sessionID,
+    })
+    setChatSessionInfo({
+      ...chatSessionInfo,
+      ['sessionID']: props.sessionID,
+    })
+    if(chatSessionInfo.sessionID!=""){
+      const userWebGetSessionInfoMessage: UserWebGetSessionInfoMessage = {
+        type: "UserWebGetSessionInfoMessage",
+        sessionID: props.sessionID,
+      }
+      const getSessionInfoPromise = () =>
+        axios.post(
+          `${serverAddress}/web`,
+          JSON.stringify(userWebGetSessionInfoMessage)
+        )
+      axios.all([getSessionInfoPromise()]).then(
+        axios.spread((getSessionInfoRst) => {
+          const webReplyGetSessionInfoMessage: WebReplyGetSessionInfoMessage = getSessionInfoRst.data
+          console.log(webReplyGetSessionInfoMessage)
+          setChatSessionInfo(webReplyGetSessionInfoMessage.chatSessionInfo);
+          setChatMessage({
+            ...chatMessage,
+            ['senderID']: userID,
+          })
+        })
+      )
+      if (scrollRef.current) {
+        (scrollRef!.current! as any).scrollIntoView({ behaviour: "smooth" });
+      }
+    setInitial(0);
+    }
+  }, [initial, props.sessionID])
+
+  React.useEffect(() => {
+    if(myWS.OPEN||false) {
+
+      myWS.onmessage = (res) => {
+        console.log("new message from ws", res)
+        const newMsg = JSON.parse(res.data)
+        // console.log('initial', initial)
+        // // setInitial(1)
+        if(newMsg.type == "UserWsChatMessage") {
+          const newChatMessage: UserWsChatMessage = newMsg as UserWsChatMessage
+        } else if(newMsg.type == "UserWsInfoMessage") {
+
+        } else if(newMsg.type == "UserWsPushChatMessage") {
+          setInitial(1)
+        }
+
+      }
+    }
+  }, [myWS.OPEN])
+
   let initialMessageList = [];
   for (var i = 0; i < 10; i++) {
     initialMessageList.push(
@@ -105,7 +164,7 @@ export default function ChatPanel() {
   }
   const [messageList, setMessageList] = React.useState(initialMessageList);
   const loadFunc = () => {
-    console.log('here we are!');
+    // console.log('here we are!');
     // let newMessageList = Object.assign([], messageList);
     // newMessageList.push(
     //   <MessageBox
@@ -124,16 +183,67 @@ export default function ChatPanel() {
 
   const handleEnterInput = (e: KeyboardEvent) => {
     if (e.key == 'Enter') {
-      console.log('here!');
+      handleSendMessageClick()
     }
   };
 
+  const handleChatMessageChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setChatInputValue(e.currentTarget.value)
+    setChatMessage({
+      ...chatMessage,
+      ['message']: e.currentTarget.value,
+    })
+  }
+
+  const handleSendMessageClick = () => {
+    console.log(myWS.OPEN)
+    if(myWS.OPEN==1) {
+      const userWsChatMessage: UserWsChatMessage= {
+        type: "UserWsChatMessage",
+        chatMessage: {
+          ...chatMessage,
+         ['sendDate']: new Date().toISOString(),
+         ['sessionID']: props.sessionID,
+        }
+      }
+      console.log(JSON.stringify(userWsChatMessage))
+      myWS.send(JSON.stringify(userWsChatMessage))
+      setChatInputValue("")
+
+    } else {
+       setAlertSnackBar({
+            snackBarTitle: '网络问题',
+            snackBarContent: 'WebSocket尚未连接',
+          });
+      setWhetherOpenAlertSnackBar(true);
+
+    }
+  }
+
   return (
     <div>
+      <Snackbar
+        open={whetherOpenAlertSnackBar}
+        autoHideDuration={6000}
+        onClose={handleAlertSnackBarClose}
+        style={{
+          marginBottom: '550px',
+          position: 'fixed',
+          zIndex: 1,
+        }}
+      >
+        <Alert
+          variant="outlined"
+          onClose={handleAlertSnackBarClose}
+          severity="error"
+        >
+          {`${alertSnackBar.snackBarTitle}: ${alertSnackBar.snackBarContent}`}
+        </Alert>
+      </Snackbar>
       <div>
-        <Typography variant="h6">Chat Session</Typography>
+        <Typography variant="h6">{chatSessionInfo.sessionName}</Typography>
       </div>
-      <Paper style={{ width: 800, height: 550, overflow: 'auto' }}>
+      <Paper id="message-paper" style={{width: 800, height: 550, overflow: 'auto'}}>
         {loader}
         <InfiniteScroll
           pageStart={0}
@@ -144,26 +254,30 @@ export default function ChatPanel() {
           isReverse={true}
         >
           {/* {messageList} */}
-          {fakeMessageList.map((fakeMessage) => {
+          {chatSessionInfo.chatMessageList.map((chatMessage) => {
             return (
               <MessageBox
-                whetherReverse={fakeMessage.senderID != fakeSelfID}
-                senderName={fakeMessage.senderName}
-                message={fakeMessage.message}
+                whetherReverse={chatMessage.senderID != selfID}
+                senderName={chatMessage.senderName}
+                message={chatMessage.message}
               ></MessageBox>
             );
           })}
         </InfiniteScroll>
+        <div ref={scrollRef} />
+
       </Paper>
       <div>
         <InputBase
+          value={chatInputValue}
           placeholder="请输入"
           style={{ width: 750 }}
           id="chatInput"
           inputProps={{ 'aria-label': 'input chat message' }}
           onKeyPress={handleEnterInput}
+          onChange={handleChatMessageChange}
         ></InputBase>
-        <IconButton>
+        <IconButton onClick={handleSendMessageClick}>
           <SendIcon />
         </IconButton>
       </div>

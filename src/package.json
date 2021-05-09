@@ -14,5 +14,8 @@
     "postinstall": "yarn electron-rebuild"
   },
   "license": "MIT",
+  "devDependencies": {
+    "@types/frappe-gantt": "^0.4.1"
+  },
   "dependencies": {}
 }

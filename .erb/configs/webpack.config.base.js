@@ -1,17 +1,26 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Autor: Tabbit
+ * @Date: 2021-03-18 12:35:50
+ * @LastEditors: Tabbit
+ * @LastEditTime: 2021-05-06 11:31:09
+ */
 /**
  * Base webpack config used across other specific configs
  */
 
 import path from 'path';
 import webpack from 'webpack';
-import { dependencies as externals } from '../../src/package.json';
+import {
+  dependencies as externals
+} from '../../src/package.json';
 
 export default {
   externals: [...Object.keys(externals || {})],
 
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.tsx?$/,
         exclude: /node_modules/,
         use: {
@@ -21,6 +30,10 @@ export default {
           },
         },
       },
+      // {
+      //   test: /gantt-task-react[\\\/]dist[\\\/]index\.css$/,
+      //   use: ['style-loader', 'css-loader']
+      // }
     ],
   },
 

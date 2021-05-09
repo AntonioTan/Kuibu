@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-02 21:39:23
+ * @LastEditTime: 2021-05-08 22:04:25
  */
 
 import {
@@ -36,6 +36,13 @@ import { serverAddress } from '../../utils/globals';
 import axios from 'axios';
 import { ProjectCard } from '../../Projects/components/dist/ProjectCard';
 import { UserWebGetCompleteProjectInfoMessage } from '../Messages/UserWebGetCompleteProjectInfoMessage';
+import GanttPanel from '../../Gantt/GanttPanel';
+import { GanttTest } from '../../Gantt/GanttTest';
+import CalendarPanel from '../../Calendar/CalendarPanel';
+import { UserWebWSInitializeMessage } from '../Messages/UserWsInitializeMessage';
+import { WebReplyWSInitializeMessage } from '../Messages/WebReplyWSInitializeMessage';
+import { PrintOutlined } from '@material-ui/icons';
+import { SyncEditPanel } from '../../SyncEdit/SyncEditPanel';
 
 
 export interface ProjectCompleteInfoInterface {
@@ -76,7 +83,8 @@ function sessionTabProps(index: number) {
   return {
     value: index,
     key: index,
-    style: { backgroundColor: '#12879c', color: '#d7ebed' },
+    style: { backgroundColor: '#12879c', color: '#d7ebed', fontSize: '13px'},
+
   };
 }
 
@@ -143,44 +151,37 @@ const AccordionDetails = withStyles((theme) => ({
     backgroundColor: '#8abdc9',
   },
 }))(MuiAccordionDetails);
-const ws = new WebSocket('ws:127.0.0.1:8080/ws?userID=003');
-const ws2 = new WebSocket('ws:127.0.0.1:8080/ws?userID=004');
+var ws = new WebSocket('ws:127.0.0.1:8080/ws?userID=003');
 ws.onopen = (e) => {
   console.log(e);
 };
 ws.onmessage = (res) => {
-  console.log(res);
+  console.log("aaaaaa", res);
 };
 ws.onclose = (e) => {
   const entity = "{'type': 'UserWsCloseMessage', 'userID': '003'}";
 };
 
-ws2.onopen = (e) => {
-  const entity = {
-    type: 'UserWsInviteProjectMessage',
-    senderID: '003',
-    inviteUserID: '004',
-    projectID: '001',
-    projectName: 'Hello World',
-  };
-  console.log(JSON.stringify(entity));
-  ws.send(JSON.stringify(entity));
-};
-ws2.onmessage = (e) => {
-  console.log(e);
-};
 
 export const HomePage = () => {
   const userContext = React.useContext(UserContext);
-  const [functionID, setFunctionID] = React.useState('vertical-function-tab-0');
   const [initial, setInitial] = React.useState<number>(1);
+  const [functionPanel, setFunctionPanel] = React.useState<JSX.Element>(<div></div>);
+  const [myWS, setMyWS] = React.useState<WebSocket>(ws);
   const [
     currentProject,
     setCurrentProject,
   ] = React.useState<ProjectCompleteInfoInterface | null>();
+  const [currentSessionID, setCurrentSessionID] = React.useState<string>("");
   React.useEffect(() => {
+    const userID: string = window.localStorage.getItem("userID")||""
     const currentProjectID: string =
       window.localStorage.getItem('currentProjectID') || '';
+    const userWsInitializeMessage: UserWebWSInitializeMessage = {
+        type: "UserWebWSInitializeMessage",
+        projectID: currentProjectID,
+        userID: userID,
+    }
     const userWebGetCompleteProjectInfoMessage: UserWebGetCompleteProjectInfoMessage = {
       type: 'UserWebGetCompleteProjectInfoMessage',
       projectID: currentProjectID,
@@ -190,6 +191,11 @@ export const HomePage = () => {
         `${serverAddress}/web`,
         JSON.stringify(userWebGetCompleteProjectInfoMessage)
       );
+      const initializeUserWsPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWsInitializeMessage)
+      )
 
     axios.all([getCompleteProjectInfoPromise()]).then(
       axios.spread((getCompleteProjectInfoRst) => {
@@ -211,9 +217,44 @@ export const HomePage = () => {
           taskMap: webReplyCompleteProjectInfo.taskMap,
         };
         setCurrentProject(projectCompleteInfo);
+        if(Object.entries(projectCompleteInfo.sessionMap).length>0) setCurrentSessionID(Object.keys(projectCompleteInfo.sessionMap)[0])
+        var createUserMap: { [key: string]: string } = {};
+    const createUserID: string = projectCompleteInfo.createUserID || '';
+    if (createUserID != '') {
+      createUserMap[createUserID] = projectCompleteInfo.createUserName || '';
+    }
+
+    const allMemberMap: { [key: string]: string } = Object.assign(
+      {},
+      currentProject?.userMap,
+      createUserMap
+    );
+      setFunctionPanel(
+      <TasksPanel
+          taskMap={projectCompleteInfo.taskMap}
+          allMemberMap={allMemberMap}
+        ></TasksPanel>
+      );
         setInitial(0);
       })
     );
+    if(userID!="") {
+      ws = new WebSocket(`ws:127.0.0.1:8080/ws?userID=${userID}`)
+      ws.onopen = ()=> {
+        console.log("ws is on!")
+        setMyWS(ws);
+        axios.all([initializeUserWsPromise()]).then(
+          axios.spread(
+            (initializeUserWsRst) => {
+        // WS initialize
+        const webReplyWSInitializeMessage:WebReplyWSInitializeMessage = initializeUserWsRst.data
+        console.log("initialize ws result", webReplyWSInitializeMessage.outcome)
+
+            }
+          )
+        )
+      }
+    }
   }, [initial]);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean
@@ -223,7 +264,39 @@ export const HomePage = () => {
     false
   );
   const handleFunctionTabChange = (event: any, newValue: number) => {
-    setFunctionID(event.currentTarget.id);
+    const id = event.currentTarget.id
+    var createUserMap: { [key: string]: string } = {};
+    const createUserID: string = currentProject?.createUserID || '';
+    if (createUserID != '') {
+      createUserMap[createUserID] = currentProject?.createUserName || '';
+    }
+
+    const allMemberMap: { [key: string]: string } = Object.assign(
+      {},
+      currentProject?.userMap,
+      createUserMap
+    );
+    if (id === 'vertical-function-tab-0') {
+      setFunctionPanel(
+      <TasksPanel
+          taskMap={currentProject?.taskMap}
+          allMemberMap={allMemberMap}
+        ></TasksPanel>
+      );
+    } else if (id === 'vertical-function-tab-1') {
+      setFunctionPanel(<ChatPanel sessionID={currentSessionID}></ChatPanel>);
+    } else if (id === 'vertical-function-tab-2') {
+      setFunctionPanel(<SyncEditPanel></SyncEditPanel>)
+    } else if (id === 'vertical-function-tab-3') {
+      setFunctionPanel(<MemberPanel></MemberPanel>);
+    } else if (id === 'vertical-function-tab-4') {
+      setFunctionPanel(<CalendarPanel></CalendarPanel>)
+    } else if (id === 'vertical-function-tab-5') {
+      setFunctionPanel(<GanttPanel></GanttPanel>)
+    }
+     else {
+      setFunctionPanel(<div></div>);
+    }
     if (typeof newValue === typeof 1) {
       setDiscussionTabExpanded(false);
       setFunctionTabValue(newValue);
@@ -235,6 +308,11 @@ export const HomePage = () => {
   const handleSessionTabChange = (event: any, newValue: number) => {
     setSessionTabValue(newValue);
   };
+
+  const handleSessionTabClick = (event: React.MouseEvent<HTMLElement>) => {
+    setCurrentSessionID(event.currentTarget.id)
+    setFunctionPanel(<ChatPanel sessionID={event.currentTarget.id}></ChatPanel>)
+  }
 
   const discussionTab = (
     <Accordion expanded={discussionTabExpanded}>
@@ -258,47 +336,21 @@ export const HomePage = () => {
         <Tabs
           orientation="vertical"
           value={sessionTabValue}
-          variant="fullWidth"
+          variant="scrollable"
           onChange={handleSessionTabChange}
           aria-label="Vertical tabs sessions"
           style={{ width: '150px' }}
         >
           {Object.entries(currentProject?.sessionMap||{}).map((session: [string, string], index: number) => {
-            return <Tab id={session[0]} label={session[1]} {...sessionTabProps(index)} />;
+            return <Tab id={session[0]} label={session[1].length>14?session[1].slice(0, 14)+'...':session[1]}
+            onClick = {handleSessionTabClick}
+            {...sessionTabProps(index)}>
+            </Tab>;
           })}
         </Tabs>
       </AccordionDetails>
     </Accordion>
   );
-  const getFunction = (id: String) => {
-    var createUserMap: { [key: string]: string } = {};
-    const createUserID: string = currentProject?.createUserID || '';
-    if (createUserID != '') {
-      createUserMap[createUserID] = currentProject?.createUserName || '';
-    }
-
-    const allMemberMap: { [key: string]: string } = Object.assign(
-      {},
-      currentProject?.userMap,
-      createUserMap
-    );
-    if (id === 'vertical-function-tab-0') {
-      console.log('all member map', allMemberMap);
-      return (
-        <TasksPanel
-          taskMap={currentProject?.taskMap}
-          allMemberMap={allMemberMap}
-        ></TasksPanel>
-      );
-    } else if (id === 'vertical-function-tab-1') {
-      return <ChatPanel></ChatPanel>;
-    } else if (id === 'vertical-function-tab-3') {
-      return <MemberPanel></MemberPanel>;
-    } else {
-      return <div></div>;
-    }
-    return;
-  };
   return (
     <div>
       <CssBaseline>
@@ -327,13 +379,20 @@ export const HomePage = () => {
                       position: 'fixed',
                     }}
                   >
-                    <div>
+                    <div style={{
+                      flexGrow: 1,
+                      display: 'flex',
+                      height: 700,
+                      zIndex: 2,
+                    }}>
                       <Tabs
                         orientation="vertical"
                         value={functionTabValue}
-                        variant="fullWidth"
+                        variant="scrollable"
                         onChange={handleFunctionTabChange}
                         aria-label="Vertical tabs functionality"
+                        scrollButtons="off"
+                        style={{backgroundColor: '#fafafa'}}
                         // className={classes.tabs}
                       >
                         <Tab label="任务列表" {...functionTabProps(0)} />
@@ -361,7 +420,7 @@ export const HomePage = () => {
                 </Grid>
               </Grid>
               <Grid item style={{ marginLeft: '180px', marginTop: '70px' }}>
-                {getFunction(functionID)}
+                {functionPanel}
               </Grid>
             </Grid>
           </Grid>

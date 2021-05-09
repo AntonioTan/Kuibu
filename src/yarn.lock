@@ -2,3 +2,7 @@
 # yarn lockfile v1
 
 
+"@types/frappe-gantt@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.npmjs.org/@types/frappe-gantt/-/frappe-gantt-0.4.1.tgz"
+  integrity sha512-FRjCk8CpKiAV0WPED9UKlDNPdfwgWm2OyYwR1ELr+LO371Mn1bpkz4pYuzCz+rX3LT5PD6ZeLIVPyO/Z7G7S9w==

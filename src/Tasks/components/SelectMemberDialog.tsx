@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-10 21:38:32
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-02 15:53:15
+ * @LastEditTime: 2021-05-08 22:19:16
  */
 import {
   Button,
@@ -34,6 +34,7 @@ interface SelectMemberDialogInterface {
   handleCheckMember: (event: React.ChangeEvent<HTMLInputElement>) => void;
   memberIDSelectMap: { [index: string]: boolean };
   handleCancelClick: () => void;
+  allMemberMap: {[index: string]: string};
 }
 
 function PaperComponent(props: PaperProps) {
@@ -50,27 +51,27 @@ export const SelectMemberDialog = (props: SelectMemberDialogInterface) => {
   const [initial, setInitial] = React.useState<number>(1);
   const [memberMap, setMemberMap] = React.useState<{
     [key: string]: string;
-  } | null>();
-  useEffect(() => {
-    const memberIDs: Array<string> = Object.entries(
-      props.memberIDSelectMap
-    ).map((memberID: [string, boolean]) => memberID[0]);
-    const userWebGetMemberMapMessage: UserWebGetMemberMapMessage = {
-      type: 'UserWebGetMemberMapMessage',
-      userIDs: memberIDs,
-    };
-    const getMemberMapPromise = () =>
-      axios.post(
-        `${serverAddress}/web`,
-        JSON.stringify(userWebGetMemberMapMessage)
-      );
-    axios.all([getMemberMapPromise()]).then(
-      axios.spread((memberMapRst) => {
-        setMemberMap(memberMapRst.data.memberMap);
-      })
-    );
-    setInitial(0);
-  }, [props.whetherSelectMember]);
+  } >(props.allMemberMap);
+  // useEffect(() => {
+  //   const memberIDs: Array<string> = Object.entries(
+  //     props.memberIDSelectMap
+  //   ).map((memberID: [string, boolean]) => memberID[0]);
+  //   const userWebGetMemberMapMessage: UserWebGetMemberMapMessage = {
+  //     type: 'UserWebGetMemberMapMessage',
+  //     userIDs: memberIDs,
+  //   };
+  //   const getMemberMapPromise = () =>
+  //     axios.post(
+  //       `${serverAddress}/web`,
+  //       JSON.stringify(userWebGetMemberMapMessage)
+  //     );
+  //   axios.all([getMemberMapPromise()]).then(
+  //     axios.spread((memberMapRst) => {
+  //       setMemberMap(memberMapRst.data.memberMap);
+  //     })
+  //   );
+  //   setInitial(0);
+  // }, [props.whetherSelectMember]);
 
   const handleConfirmClick = () => {
     setInitial(1);
