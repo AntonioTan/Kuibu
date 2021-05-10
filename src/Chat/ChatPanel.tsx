@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-03-19 19:03:06
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-08 19:05:37
+ * @LastEditTime: 2021-05-10 23:37:09
  */
 import React, { useState, KeyboardEvent } from 'react';
 import {
@@ -51,7 +51,27 @@ export default function ChatPanel(props: ChatPanelInterface) {
   const scrollRef = React.useRef(null);
   const [selfID, setSelfID] = React.useState<string>("");
   const [initial, setInitial] = React.useState<number>(1);
-  const [myWS, setMyWS] = React.useState<WebSocket>(new WebSocket(`ws:127.0.0.1:8080/ws?userID=${window.localStorage.getItem("userID")}`))
+  const ws = React.useRef<WebSocket>(new WebSocket(`ws:127.0.0.1:8080/ws?userID=${window.localStorage.getItem("userID")}`))
+  React.useEffect(() => {
+    return () => ws.current.close();
+}, []);
+  React.useEffect( () => {
+    ws.current.onmessage = (res) => {
+        console.log("new message from ws", res)
+        const newMsg = JSON.parse(res.data)
+        // console.log('initial', initial)
+        // // setInitial(1)
+        if(newMsg.type == "UserWsChatMessage") {
+          const newChatMessage: UserWsChatMessage = newMsg as UserWsChatMessage
+        } else if(newMsg.type == "UserWsInfoMessage") {
+
+        } else if(newMsg.type == "UserWsPushChatMessage") {
+          setInitial(1)
+        }
+
+      }
+  }, [])
+
   const [chatInputValue, setChatInputValue] = React.useState<string>("")
   const [chatSessionInfo, setChatSessionInfo] = React.useState<ChatSessionInfoInterface>({
     sessionID: props.sessionID,
@@ -100,7 +120,6 @@ export default function ChatPanel(props: ChatPanelInterface) {
       axios.all([getSessionInfoPromise()]).then(
         axios.spread((getSessionInfoRst) => {
           const webReplyGetSessionInfoMessage: WebReplyGetSessionInfoMessage = getSessionInfoRst.data
-          console.log(webReplyGetSessionInfoMessage)
           setChatSessionInfo(webReplyGetSessionInfoMessage.chatSessionInfo);
           setChatMessage({
             ...chatMessage,
@@ -115,25 +134,11 @@ export default function ChatPanel(props: ChatPanelInterface) {
     }
   }, [initial, props.sessionID])
 
-  React.useEffect(() => {
-    if(myWS.OPEN||false) {
+  // React.useEffect(() => {
+  //   if(ws.current.OPEN||false) {
 
-      myWS.onmessage = (res) => {
-        console.log("new message from ws", res)
-        const newMsg = JSON.parse(res.data)
-        // console.log('initial', initial)
-        // // setInitial(1)
-        if(newMsg.type == "UserWsChatMessage") {
-          const newChatMessage: UserWsChatMessage = newMsg as UserWsChatMessage
-        } else if(newMsg.type == "UserWsInfoMessage") {
-
-        } else if(newMsg.type == "UserWsPushChatMessage") {
-          setInitial(1)
-        }
-
-      }
-    }
-  }, [myWS.OPEN])
+  //   }
+  // }, [ws.current.OPEN])
 
   let initialMessageList = [];
   for (var i = 0; i < 10; i++) {
@@ -196,8 +201,8 @@ export default function ChatPanel(props: ChatPanelInterface) {
   }
 
   const handleSendMessageClick = () => {
-    console.log(myWS.OPEN)
-    if(myWS.OPEN==1) {
+    console.log(ws.current.OPEN)
+    if(ws.current.OPEN) {
       const userWsChatMessage: UserWsChatMessage= {
         type: "UserWsChatMessage",
         chatMessage: {
@@ -207,7 +212,7 @@ export default function ChatPanel(props: ChatPanelInterface) {
         }
       }
       console.log(JSON.stringify(userWsChatMessage))
-      myWS.send(JSON.stringify(userWsChatMessage))
+      ws.current.send(JSON.stringify(userWsChatMessage))
       setChatInputValue("")
 
     } else {

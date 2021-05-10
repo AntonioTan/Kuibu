@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-09 23:46:30
+ * @LastEditTime: 2021-05-10 23:57:44
  */
 
 import {
@@ -20,7 +20,7 @@ import {
   withStyles,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import React from 'react';
+import React, { useRef } from 'react';
 import ChatPanel from '../../Chat/ChatPanel';
 import { MemberPanel } from '../../Members/MemberPanel';
 import { TasksPanel } from '../../Tasks/TasksPanel';
@@ -167,18 +167,26 @@ export const HomePage = () => {
   const userContext = React.useContext(UserContext);
   const [initial, setInitial] = React.useState<number>(1);
   const [functionPanel, setFunctionPanel] = React.useState<JSX.Element>(<div></div>);
-  const [myWS, setMyWS] = React.useState<WebSocket>(ws);
+  const userID: string = window.localStorage.getItem("userID")||""
   const [
     currentProject,
     setCurrentProject,
   ] = React.useState<ProjectCompleteInfoInterface | null>();
   const [currentSessionID, setCurrentSessionID] = React.useState<string>("");
+  const ws = useRef(new WebSocket(`ws:127.0.0.1:8080/ws?userID=${userID}`))
   React.useEffect(() => {
-    const userID: string = window.localStorage.getItem("userID")||""
+    return () => ws.current.close();
+}, []);
+
+  React.useEffect(() => {
     const currentProjectID: string =
       window.localStorage.getItem('currentProjectID') || '';
+      const lastProjectID: string =
+      window.localStorage.getItem("lastProjectID") || "";
+      console.log(currentProjectID, lastProjectID)
     const userWsInitializeMessage: UserWebWSInitializeMessage = {
         type: "UserWebWSInitializeMessage",
+        lastProjectID: lastProjectID,
         projectID: currentProjectID,
         userID: userID,
     }
@@ -239,26 +247,26 @@ export const HomePage = () => {
       })
     );
     if(userID!="") {
-      ws = new WebSocket(`ws:127.0.0.1:8080/ws?userID=${userID}`)
-      ws.onopen = ()=> {
-        console.log("ws is on!")
-        setMyWS(ws);
-        const initialized: boolean = Boolean(window.localStorage.getItem("initiazlied")||"false")
-        if(!initialized) {
-        axios.all([initializeUserWsPromise()]).then(
+      ws.current.onopen = ()=> {
+        // if(!Boolean(window.localStorage.getItem("initialized")||"false")) {
+          console.log("projectID", lastProjectID, currentProjectID)
+        if(lastProjectID!=currentProjectID) {
+      axios.all([initializeUserWsPromise()]).then(
           axios.spread(
             (initializeUserWsRst) => {
         // WS initialize
         const webReplyWSInitializeMessage:WebReplyWSInitializeMessage = initializeUserWsRst.data
         console.log("initialize ws result", webReplyWSInitializeMessage.outcome)
         window.localStorage.setItem("initialized", "true")
-
             }
           )
         )
+
         }
+        }
+        console.log("ws is on!")
       }
-    }
+    // }
   }, [initial]);
   const [functionTabValue, setFunctionTabValue] = React.useState<
     number | boolean

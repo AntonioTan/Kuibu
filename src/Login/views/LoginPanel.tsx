@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-04 23:04:05
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-04-20 16:07:33
+ * @LastEditTime: 2021-05-10 23:09:57
  */
 import {
   Button,
@@ -36,7 +36,7 @@ interface LoginInterface {
   passWord: string;
 }
 
-interface SnackBarInterface {
+export interface SnackBarInterface {
   snackBarTitle: string;
   snackBarContent: string;
 }
@@ -148,6 +148,8 @@ export const LoginPanel = (props: any) => {
                   'userBasicInfo',
                   JSON.stringify(webReplyBasicUserInfoMessage.userBasicInfo)
                 );
+                window.localStorage.setItem("currentProjectID", "");
+                window.localStorage.setItem("lastProjectID", "");
               })
           ).then(() => ipcRenderer.send('goProjects'));
         } else {

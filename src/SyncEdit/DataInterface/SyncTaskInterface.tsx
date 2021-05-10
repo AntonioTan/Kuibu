@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-05-09 18:50:38
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-09 22:57:55
+ * @LastEditTime: 2021-05-10 18:47:48
  */
 
 import { TaskProcessInfoInterface } from "./TaskProcessInfoInterface";
@@ -19,7 +19,7 @@ export interface SyncTaskInfoInterface {
   endDate: string;
   description: string;
   toDoList: Array<TaskToDoInfoInterface>
-  processInfoList: Array<TaskProcessInfoInterface>
+  processInfoMap:{[key: string]: TaskProcessInfoInterface}
   allMemberMap: {[key: string]: string};
 
 }
