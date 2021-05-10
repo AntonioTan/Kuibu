@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-04-05 23:57:26
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-09 10:32:12
+ * @LastEditTime: 2021-05-09 23:46:30
  */
 
 import {
@@ -243,16 +243,20 @@ export const HomePage = () => {
       ws.onopen = ()=> {
         console.log("ws is on!")
         setMyWS(ws);
+        const initialized: boolean = Boolean(window.localStorage.getItem("initiazlied")||"false")
+        if(!initialized) {
         axios.all([initializeUserWsPromise()]).then(
           axios.spread(
             (initializeUserWsRst) => {
         // WS initialize
         const webReplyWSInitializeMessage:WebReplyWSInitializeMessage = initializeUserWsRst.data
         console.log("initialize ws result", webReplyWSInitializeMessage.outcome)
+        window.localStorage.setItem("initialized", "true")
 
             }
           )
         )
+        }
       }
     }
   }, [initial]);

@@ -19,7 +19,10 @@ import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { ipcRenderer } from 'electron';
 import { ProjectInterface } from './CreateProjectDialog';
-import { theme } from '../../utils/globals';
+import { serverAddress, theme } from '../../utils/globals';
+import { UserWebWSInitializeMessage } from '../../Home/Messages/UserWebWSInitializeMessage';
+import axios from 'axios';
+import { WebReplyWSInitializeMessage } from '../../Home/Messages/WebReplyWSInitializeMessage';
 
 interface ProjectCardInterface {
   project: ProjectInterface;
@@ -73,8 +76,36 @@ export const ProjectCard = (props: ProjectCardInterface) => {
     setContentOpen(!contentOpen);
   };
   const handleEnterProject = () => {
+    const userID: string = window.localStorage.getItem("userID")||""
+    const lastProjectID: string = window.localStorage.getItem('currentProjectID') || '';
+    if(lastProjectID != props.project.projectID) {
+    const userWsInitializeMessage: UserWebWSInitializeMessage = {
+        type: "UserWebWSInitializeMessage",
+        lastProjectID: lastProjectID,
+        projectID: props.project.projectID,
+        userID: userID,
+    }
+    const initializeUserWsPromise = () =>
+      axios.post(
+        `${serverAddress}/web`,
+        JSON.stringify(userWsInitializeMessage)
+      )
+    axios.all([initializeUserWsPromise()]).then(
+          axios.spread(
+            (initializeUserWsRst) => {
+        // WS initialize
+        const webReplyWSInitializeMessage:WebReplyWSInitializeMessage = initializeUserWsRst.data
+        ipcRenderer.send('goMain');
+        console.log("initialize ws result", webReplyWSInitializeMessage.outcome)
+
+            }
+          )
+        )
     window.localStorage.setItem('currentProjectID', props.project.projectID);
+    } else {
     ipcRenderer.send('goMain');
+    }
+
   };
   return (
     <div>
