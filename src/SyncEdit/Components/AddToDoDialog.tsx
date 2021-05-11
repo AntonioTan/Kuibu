@@ -49,17 +49,38 @@ import { UserWebGetUserNameMessage } from '../Messages/UserWebGetUserNameMessage
 import { serverAddress } from '../../utils/globals';
 import axios from 'axios';
 import { WebReplyGetUserNameMessage } from '../Messages/WebReplyGetUserNameMessage';
+import { TaskToDoInfoInterface } from '../DataInterface/TaskToDoInfoInterface';
 
 interface AddToDoDialogInterface {
   whetherAddToDo: boolean;
   handleWhetherAddToDo: (val: boolean)=>void;
+  handleAddNewToDo: (val: TaskToDoInfoInterface) => void;
 }
 
 
 
+
 export const AddToDoDialog = (props: AddToDoDialogInterface) => {
+  const userID = window.localStorage.getItem("userID")||""
   const [initial, setInitial] = useState<number>(1);
   const [userName, setUserName] = useState<string>("正在获取")
+  const [toDoForm, setToDoForm] = useState<TaskToDoInfoInterface>({
+    taskToDoID: "",
+    createUserID: userID,
+    finishUserID: "",
+    content: "",
+    startDate: "",
+    endDate: "",
+    status: "0",
+  })
+
+  const handleToDoContentChange = (e: React.ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) => {
+    setToDoForm({
+      ...toDoForm,
+      ['content']: e.currentTarget.value
+    })
+  }
+
   React.useEffect(
     () => {
       const userID: string = window.localStorage.getItem("userID")||""
@@ -85,6 +106,12 @@ export const AddToDoDialog = (props: AddToDoDialogInterface) => {
       setInitial(0)
     }, [initial]
   )
+
+  const handleConfirmClick = () => {
+    props.handleAddNewToDo(toDoForm);
+    props.handleWhetherAddToDo(false);
+  }
+
   const handleCancelClick = () => {
     props.handleWhetherAddToDo(false);
   }
@@ -126,7 +153,7 @@ export const AddToDoDialog = (props: AddToDoDialogInterface) => {
                 <Input
                   id="leader"
                   disabled={true}
-                  value={"Tianyi"}
+                  value={userName}
                   style={{ width: '350px' }}
                 ></Input>
               </FormControl>
@@ -135,7 +162,7 @@ export const AddToDoDialog = (props: AddToDoDialogInterface) => {
               <Typography>To Do内容</Typography>
             </ListItem> */}
             <ListItem>
-              <TextField label="To Do内容" style={{width: 600}}></TextField>
+              <TextField label="To Do内容" style={{width: 600}} onChange={handleToDoContentChange}></TextField>
             </ListItem>
           </List>
         </DialogContentText>
@@ -143,7 +170,7 @@ export const AddToDoDialog = (props: AddToDoDialogInterface) => {
           <Button
             color="primary"
             variant="outlined"
-            // onClick={handleConfirmClick}
+            onClick={handleConfirmClick}
           >
             完成
           </Button>

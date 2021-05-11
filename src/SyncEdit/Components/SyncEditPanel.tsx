@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-05-08 21:55:36
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-09 23:36:04
+ * @LastEditTime: 2021-05-11 09:46:14
  */
 import React from 'react'
 import { EditDetailPanel } from '../EditDetailPanel';
@@ -30,8 +30,8 @@ export const SyncEditPanel = function(props: SyncEditPanelInterface) {
     <div>
       {
         !whetherEditTask?
-        (<TaskListPanel handleSetEditTaskID={handleSetEditTaskID}></TaskListPanel>):
-        (<EditDetailPanel handleWhetherEditTask={handleWhetherEditTask} taskID={editTaskID}></EditDetailPanel>)
+        (<TaskListPanel  handleSetEditTaskID={handleSetEditTaskID}></TaskListPanel>):
+        (<EditDetailPanel whetherEditTask={whetherEditTask} handleWhetherEditTask={handleWhetherEditTask} taskID={editTaskID}></EditDetailPanel>)
       }
     </div>
 
