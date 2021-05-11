@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-05-06 21:42:32
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-06 22:14:29
+ * @LastEditTime: 2021-05-11 15:31:39
  */
 import React from 'react'
 import { Event, Calendar, momentLocalizer } from 'react-big-calendar'
@@ -51,7 +51,7 @@ export default function CalendarPanel(props: any) {
 
   ];
   return (
-    <div style={{width: '800px', height: '1000px'}}>
+    <div style={{width: '800px', height: '600px'}}>
     <Calendar
       localizer={localizer}
       events={myEventsList}

@@ -4,14 +4,27 @@
  * @Autor: Tabbit
  * @Date: 2021-05-05 22:53:37
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-06 22:22:52
+ * @LastEditTime: 2021-05-11 20:37:08
  */
 
 import { GanttPanelInterface } from "./DataInterface/GanttPanelInterface";
-import React from "react";
+import React, { useState } from "react";
 import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
 import { ViewSwitcher } from "./Components/view-swticher";
-import { Grid } from "@material-ui/core";
+import { Grid, Snackbar } from "@material-ui/core";
+import { UserWebGetGanttDataMessage } from "./Messages/UserWebGetGanttDataMessage";
+import { serverAddress, wsAddress } from "../utils/globals";
+import axios from "axios";
+import { WebReplyGetGanttDataMessage } from "./Messages/WebReplyGetGanttDataMessage";
+import { GanttData } from "./DataInterface/GanttData";
+import { UserWsGanttTaskDateChangeMessage } from "./Messages/UserWsGanttTaskDateChangeMessage";
+import UserContextProviderComponent from "../utils/components/UserContext";
+import { GanttTask } from "./DataInterface/GanttTask";
+import { UserWsGanttUpdateMessage } from "./Messages/UserWsGanttUpdateMessage";
+import { UserWebGanttDateChangeMessage } from "./Messages/UserWebGanttDateChangeMessage";
+import { WebReplyGanttDateChangeMessage } from "./Messages/WebReplyGanttDateChangeMessage";
+import { Alert } from "@material-ui/lab";
+import { SnackBarInterface } from "../Login/views/LoginPanel";
 
 export function initTasks() {
   const currentDate = new Date();
@@ -118,10 +131,114 @@ export function getStartEndDateForProject(tasks: Task[], projectId: string) {
   }
   return [start, end];
 }
+
+const convertToTaskList: (val: GanttData)=>Array<Task> = (ganttData: GanttData) => {
+  var ganttTaskList: Array<Task> = ganttData.taskList.map(ganttTask => {
+    return {
+      id: ganttTask.taskID,
+      type: "task",
+      name: ganttTask.taskName,
+      progress: ganttTask.progress,
+      start: new Date(ganttTask.startDate),
+      end: new Date(ganttTask.endDate),
+      dependencies: [ganttTask.parentID]
+    }
+  })
+  const endDate = ganttTaskList.length>0?ganttTaskList.sort((a,b) => a.end>b.end?-1:1)[0].end:new Date()
+  ganttTaskList.unshift(
+    {
+      id: ganttData.projectID,
+      name: ganttData.projectName,
+      type: "project",
+      start: new Date(ganttData.startDate),
+      end: endDate,
+      progress: Math.floor(ganttTaskList.map(ganttTask => ganttTask.progress).reduce((a,b)=>a+b, 0) / ganttData.taskList.length)
+    }
+  )
+  return ganttTaskList;
+}
+
 export default function GanttPanel(props: GanttPanelInterface) {
+  const userID: string = window.localStorage.getItem("userID")||""
+  const [initial, setInitial] = React.useState<number>(1);
+  const ws = React.useRef(new WebSocket(`${wsAddress}/ws?userID=${window.localStorage.getItem("userID")}`))
+  // ws.current = new WebSocket(`${wsAddress}/ws?userID=${window.localStorage.getItem("userID")}`)
+  React.useEffect(() => {
+    return () => ws.current.close();
+}, []);
+  const [ganttData, setGanttData] = React.useState<GanttData>({
+    projectID: "",
+    projectName: "",
+    startDate: "",
+    allMemberMap: {},
+    taskList: [],
+  })
+  const [taskList, setTaskList] = React.useState<Array<Task>>(initTasks());
   const [view, setView] = React.useState<ViewMode>(ViewMode.Day);
   const [tasks, setTasks] = React.useState<Task[]>(initTasks());
   const [isChecked, setIsChecked] = React.useState(true);
+  const [whetherOpenAlertSnackBar, setWhetherOpenAlertSnackBar] = React.useState<boolean>(false)
+  const [alertSnackBar, setAlertSnackBar] = useState<SnackBarInterface>({
+    snackBarTitle: '',
+    snackBarContent: '',
+  });
+  const handleAlertSnackBarClose = () => {
+    setWhetherOpenAlertSnackBar(false);
+  };
+  ws.current.onmessage = (res) => {
+    const data = JSON.parse(res.data)
+    if(data.type == "UserWsGanttTaskDateChangeMessage") {
+      const userWsGanttTaskDateChangeMessage: UserWsGanttTaskDateChangeMessage = data as UserWsGanttTaskDateChangeMessage
+      if(userWsGanttTaskDateChangeMessage.editUserID != userID) {
+        var newTaskList: Array<Task> = [];
+        taskList.map(task => {
+          if(task.id==userWsGanttTaskDateChangeMessage.taskID) {
+            task.start = new Date(userWsGanttTaskDateChangeMessage.startDate)
+            task.end = new Date(userWsGanttTaskDateChangeMessage.endDate)
+          }
+          newTaskList.push(task);
+        })
+        setTaskList(newTaskList)
+      }
+
+    } else if(data.type == "UserWsGanttUpdateMessage") {
+      console.log("gantt update", data)
+      const userWsGanttUpdateMessage: UserWsGanttUpdateMessage = data as UserWsGanttUpdateMessage
+      setInitial(1)
+      setAlertSnackBar({
+        snackBarTitle: "甘特图更新",
+        snackBarContent: `来自${ganttData.allMemberMap[userWsGanttUpdateMessage.editUserID]}的更新`
+      })
+      setWhetherOpenAlertSnackBar(true);
+
+
+    }
+  }
+
+  React.useEffect(
+    () => {
+      const currentProjectID = window.localStorage.getItem("currentProjectID")||""
+      const userWebGetGanttDataMessage: UserWebGetGanttDataMessage = {
+        type: "UserWebGetGanttDataMessage",
+        projectID: currentProjectID
+      }
+      const getGanttDataPromise = () =>
+        axios.post(`${serverAddress}/web`, JSON.stringify(userWebGetGanttDataMessage))
+
+      axios.all([getGanttDataPromise()]).then(
+        axios.spread((getGanttDataRst) => {
+          const webReplyGetGanttDataMessage: WebReplyGetGanttDataMessage= getGanttDataRst.data as WebReplyGetGanttDataMessage
+          const ganttData = webReplyGetGanttDataMessage.ganttData
+          setGanttData(ganttData)
+          const taskList = convertToTaskList(ganttData)
+          setTaskList(taskList)
+        })
+      )
+      setInitial(0)
+
+    }, [initial]
+  )
+
   let columnWidth = 60;
   if (view === ViewMode.Month) {
     columnWidth = 300;
@@ -130,6 +247,18 @@ export default function GanttPanel(props: GanttPanelInterface) {
   }
 
   const onTaskChange = (task: Task) => {
+    const userWsGanttTaskDateChangeMessage:  UserWsGanttTaskDateChangeMessage = {
+      type: "UserWsGanttTaskDateChangeMessage",
+      projectID: window.localStorage.getItem("currentProjectID")||"",
+      taskID: task.id,
+      editUserID: window.localStorage.getItem("userID")||"",
+      startDate: task.start.toISOString(),
+      endDate: task.end.toISOString(),
+    }
+    ws.current.send(JSON.stringify(userWsGanttTaskDateChangeMessage))
+    const newTaskList: Array<Task> = taskList.map(t => (t.id === task.id ? task : t))
+    setTaskList(newTaskList)
+
     console.log("On date change Id:" + task.id);
     let newTasks = tasks.map(t => (t.id === task.id ? task : t));
     if (task.project) {
@@ -169,11 +298,60 @@ export default function GanttPanel(props: GanttPanelInterface) {
     console.log(task.name + " has " + (isSelected ? "selected" : "unselected"));
   };
 
+  const handleSubmitGanttDateChange = () => {
+    const ganttTaskList: Array<GanttTask> = taskList.map(task => {
+      return {
+        taskID: task.id,
+        taskName: task.name,
+        startDate: task.start.toISOString(),
+        endDate: task.end.toISOString(),
+        progress: task.progress,
+        parentID: "",
+      }
+    });
+    const userWebGanttDateChangeMessage: UserWebGanttDateChangeMessage = {
+      type: "UserWebGanttDateChangeMessage",
+      projectID: window.localStorage.getItem("currentProjectID")||"",
+      taskList: ganttTaskList,
+    }
+    axios.post(`${serverAddress}/web`, JSON.stringify(userWebGanttDateChangeMessage)).then(
+      res => {
+        const webReplyGanttDateChangeMessage: WebReplyGanttDateChangeMessage = res.data as WebReplyGanttDateChangeMessage
+        if(webReplyGanttDateChangeMessage.outcome) {
+          const userWsGanttUpdateMessage: UserWsGanttUpdateMessage = {
+            type: "UserWsGanttUpdateMessage",
+            projectID: webReplyGanttDateChangeMessage.projectID,
+            editUserID: userID,
+          }
+          ws.current.send(JSON.stringify(userWsGanttUpdateMessage));
+        }
+
+      }
+    )
+  }
 
 
 
   return (
     <div>
+      <Snackbar
+        open={whetherOpenAlertSnackBar}
+        autoHideDuration={6000}
+        onClose={handleAlertSnackBarClose}
+        style={{
+          marginBottom: '550px',
+          position: 'fixed',
+          zIndex: 1,
+        }}
+      >
+        <Alert
+          variant="outlined"
+          onClose={handleAlertSnackBarClose}
+          severity="info"
+        >
+          {`${alertSnackBar.snackBarTitle}: ${alertSnackBar.snackBarContent}`}
+        </Alert>
+      </Snackbar>
       {/* <div style={{position: 'fixed', width: '150px', height: '600px', marginLeft: '-180px', backgroundColor: '#fafafa', zIndex: 0}}></div> */}
       <Grid container
       spacing={2}
@@ -187,6 +365,7 @@ export default function GanttPanel(props: GanttPanelInterface) {
         </Grid>
       <Grid item>
      <ViewSwitcher
+        handleSubmitGanttDateChange={handleSubmitGanttDateChange}
         onViewModeChange={viewMode => setView(viewMode)}
         onViewListChange={setIsChecked}
         isChecked={isChecked}
@@ -195,7 +374,7 @@ export default function GanttPanel(props: GanttPanelInterface) {
       <Grid item></Grid>
       <Grid item style={{marginTop: '60px'}}>
       <Gantt
-        tasks={tasks}
+        tasks={taskList}
         viewMode={view}
         onDateChange={onTaskChange}
         onDelete={onTaskDelete}

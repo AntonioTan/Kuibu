@@ -4,7 +4,7 @@
  * @Autor: Tabbit
  * @Date: 2021-05-06 12:12:55
  * @LastEditors: Tabbit
- * @LastEditTime: 2021-05-06 21:34:38
+ * @LastEditTime: 2021-05-11 16:45:03
  */
 import React, { useState } from "react";
 import "gantt-task-react/dist/index.css";
@@ -14,6 +14,7 @@ interface ViewSwitcherProps {
   isChecked: boolean;
   onViewListChange: (isChecked: boolean) => void;
   onViewModeChange: (viewMode: ViewMode) => void;
+  handleSubmitGanttDateChange: () => void;
 };
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,6 +58,11 @@ export function ViewSwitcher(props: ViewSwitcherProps){
     <div className="ViewContainer" style={{position: 'fixed', width:'1000px', height: '80px', backgroundColor: '#fafafa'}}>
       <Grid container direction="row" alignItems="center" spacing={2}>
         <Grid item>
+          <Button variant="outlined" color="primary" className={classes.button} onClick={props.handleSubmitGanttDateChange}>
+            提交修改结果
+          </Button>
+        </Grid>
+        <Grid item>
      <Button onClick={handleOpen} className={classes.button}> 选择时间长度 </Button>
         </Grid>
         <Grid item>
@@ -71,11 +77,6 @@ export function ViewSwitcher(props: ViewSwitcherProps){
           value={timeInterval}
           onChange={handleChange}
         >
-          {/* <MenuItem value={0}>{timeIntervals[0]}</MenuItem>
-          <MenuItem value={1}>{timeIntervals[1]}</MenuItem>
-          <MenuItem value={2}>{timeIntervals[2]}</MenuItem>
-          <MenuItem value={3}>{timeIntervals[3]}</MenuItem>
-          <MenuItem value={4}>{timeIntervals[4]}</MenuItem> */}
           {
             timeIntervals.map((value, index) => {
               return <MenuItem value={timeIntervals.indexOf(value)}>{value}</MenuItem>

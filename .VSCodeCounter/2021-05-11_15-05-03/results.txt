@@ -1,0 +1,203 @@
+Date : 2021-05-11 15:05:03
+Directory : /Users/tantianyi/Documents/MyWork/MyGraduationProject/create
+Total : 132 files,  51122 codes, 1507 comments, 989 blanks, all 53618 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| JSON             |          5 |     42,732 |        250 |          4 |     42,986 |
+| TypeScript React |         85 |      6,604 |        950 |        543 |      8,097 |
+| JavaScript       |         18 |        738 |        131 |        110 |        979 |
+| Markdown         |          6 |        439 |         39 |        246 |        724 |
+| TypeScript       |          7 |        424 |         53 |         45 |        522 |
+| YAML             |          5 |         77 |          8 |         20 |        105 |
+| HTML             |          1 |         49 |          8 |          4 |         61 |
+| Ignore           |          1 |         33 |         12 |         12 |         57 |
+| XML              |          1 |         23 |          0 |          1 |         24 |
+| CSS              |          3 |          3 |         56 |          4 |         63 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                        | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                           |        132 |     51,122 |      1,507 |        989 |     53,618 |
+| .erb                                                                                                                        |         15 |        649 |        113 |         93 |        855 |
+| .erb/configs                                                                                                                |          6 |        502 |        106 |         68 |        676 |
+| .erb/mocks                                                                                                                  |          1 |          1 |          0 |          1 |          2 |
+| .erb/scripts                                                                                                                |          8 |        146 |          7 |         24 |        177 |
+| .github                                                                                                                     |          8 |        113 |         47 |         49 |        209 |
+| .github/ISSUE_TEMPLATE                                                                                                      |          3 |         36 |         39 |         29 |        104 |
+| .github/workflows                                                                                                           |          2 |         56 |          2 |         16 |         74 |
+| assets                                                                                                                      |          2 |         35 |          0 |          4 |         39 |
+| src                                                                                                                         |         94 |      7,119 |      1,043 |        593 |      8,755 |
+| src/Calendar                                                                                                                |          2 |        226 |         16 |         11 |        253 |
+| src/Chat                                                                                                                    |         11 |        514 |        114 |         53 |        681 |
+| src/Chat/DataInterface                                                                                                      |          3 |         22 |         24 |          6 |         52 |
+| src/Chat/Messages                                                                                                           |          3 |         14 |         24 |          8 |         46 |
+| src/Chat/components                                                                                                         |          3 |        231 |         34 |         17 |        282 |
+| src/Gantt                                                                                                                   |         10 |        325 |         67 |         38 |        430 |
+| src/Gantt/Components                                                                                                        |          1 |         90 |         11 |          5 |        106 |
+| src/Gantt/DataInterface                                                                                                     |          3 |         18 |         24 |          8 |         50 |
+| src/Gantt/Messages                                                                                                          |          2 |          4 |         16 |          3 |         23 |
+| src/Home                                                                                                                    |          7 |        841 |         78 |         51 |        970 |
+| src/Home/Messages                                                                                                           |          4 |         20 |         32 |          7 |         59 |
+| src/Home/pages                                                                                                              |          2 |        794 |         36 |         41 |        871 |
+| src/Login                                                                                                                   |          3 |        546 |         28 |         28 |        602 |
+| src/Login/views                                                                                                             |          2 |        422 |         18 |         24 |        464 |
+| src/Members                                                                                                                 |          1 |         71 |          8 |          3 |         82 |
+| src/Projects                                                                                                                |          3 |        774 |        115 |         40 |        929 |
+| src/Projects/components                                                                                                     |          2 |        496 |        103 |         27 |        626 |
+| src/SyncEdit                                                                                                                |         29 |      1,088 |        251 |        145 |      1,484 |
+| src/SyncEdit/Components                                                                                                     |          3 |        335 |         17 |         37 |        389 |
+| src/SyncEdit/DataInterface                                                                                                  |          6 |         52 |         40 |         20 |        112 |
+| src/SyncEdit/Messages                                                                                                       |         19 |        102 |        152 |         54 |        308 |
+| src/Tasks                                                                                                                   |         11 |      1,724 |        137 |        124 |      1,985 |
+| src/Tasks/Components                                                                                                        |          4 |      1,472 |         84 |         90 |      1,646 |
+| src/Tasks/DataInterface                                                                                                     |          1 |         10 |          8 |          2 |         20 |
+| src/Tasks/Messages                                                                                                          |          5 |         22 |         32 |         11 |         65 |
+| src/__tests__                                                                                                               |          1 |          9 |          0 |          2 |         11 |
+| src/utils                                                                                                                   |          8 |        355 |         75 |         35 |        465 |
+| src/utils/components                                                                                                        |          5 |        312 |         51 |         29 |        392 |
+| typings                                                                                                                     |          4 |         23 |         32 |          6 |         61 |
++-----------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                                                                    | language         | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.base.js                            | JavaScript       |         34 |         19 |          7 |         60 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.eslint.js                          | JavaScript       |          2 |          1 |          2 |          5 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.main.prod.babel.js                 | JavaScript       |         46 |         17 |         13 |         76 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.renderer.dev.babel.js              | JavaScript       |        245 |         30 |         17 |        292 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.renderer.dev.dll.babel.js          | JavaScript       |         43 |         15 |         15 |         73 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/configs/webpack.config.renderer.prod.babel.js             | JavaScript       |        132 |         24 |         14 |        170 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/mocks/fileMock.js                                         | JavaScript       |          1 |          0 |          1 |          2 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/BabelRegister.js                                  | JavaScript       |          5 |          0 |          2 |          7 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/CheckBuildsExist.js                               | JavaScript       |         21 |          1 |          4 |         26 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/CheckNativeDep.js                                 | JavaScript       |         45 |          3 |          2 |         50 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/CheckNodeEnv.js                                   | JavaScript       |         14 |          0 |          3 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/CheckPortInUse.js                                 | JavaScript       |         14 |          0 |          3 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/DeleteSourceMaps.js                               | JavaScript       |          4 |          3 |          1 |          8 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/ElectronRebuild.js                                | JavaScript       |         20 |          0 |          3 |         23 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.erb/scripts/Notarize.js                                       | JavaScript       |         23 |          0 |          6 |         29 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.eslintignore                                                  | Ignore           |         33 |         12 |         12 |         57 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.eslintrc.js                                                   | JavaScript       |         24 |          2 |          1 |         27 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/FUNDING.yml                                            | YAML             |          3 |          1 |          2 |          6 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/ISSUE_TEMPLATE/1-Bug_report.md                         | Markdown         |         25 |         20 |         23 |         68 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/ISSUE_TEMPLATE/2-Question.md                           | Markdown         |          6 |         10 |          4 |         20 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/ISSUE_TEMPLATE/3-Feature_request.md                    | Markdown         |          5 |          9 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/config.yml                                             | YAML             |          6 |          0 |          1 |          7 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/stale.yml                                              | YAML             |         12 |          5 |          1 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/workflows/publish.yml                                  | YAML             |         30 |          2 |          8 |         40 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/.github/workflows/test.yml                                     | YAML             |         26 |          0 |          8 |         34 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/CHANGELOG.md                                                   | Markdown         |        341 |          0 |        193 |        534 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/CODE_OF_CONDUCT.md                                             | Markdown         |         57 |          0 |         20 |         77 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/README.md                                                      | Markdown         |          5 |          0 |          4 |          9 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/assets/assets.d.ts                                             | TypeScript       |         12 |          0 |          3 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/assets/icon.svg                                                | XML              |         23 |          0 |          1 |         24 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/babel.config.js                                                | JavaScript       |         43 |          8 |         12 |         63 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/package-lock.json                                              | JSON             |     42,563 |          0 |          1 |     42,564 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/package.json                                                   | JSON             |         85 |        245 |          0 |        330 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/App.global.css                                             | CSS              |          3 |         56 |          2 |         61 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/App.tsx                                                    | TypeScript React |        111 |         43 |         12 |        166 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Calendar/CalendarPanel.tsx                                 | TypeScript React |         50 |          8 |          6 |         64 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Calendar/events.tsx                                        | TypeScript React |        176 |          8 |          5 |        189 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/ChatPanel.tsx                                         | TypeScript React |        247 |         24 |         21 |        292 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/DataInterface/ChatMessage.tsx                         | TypeScript React |          8 |          8 |          2 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/DataInterface/ChatMessageInterface.tsx                | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/DataInterface/ChatSessionInfoInterface.tsx            | TypeScript React |          8 |          8 |          2 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/Messages/UserWebGetSessionInfoMessage.tsx             | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/Messages/UserWsChatMessage.tsx                        | TypeScript React |          5 |          8 |          4 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/Messages/WebReplyGetSessionInfoMessage.tsx            | TypeScript React |          5 |          8 |          2 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/components/ContactDrawer.tsx                          | TypeScript React |        111 |         17 |          8 |        136 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/components/MessageBox.tsx                             | TypeScript React |         53 |          9 |          4 |         66 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/components/ProfileBadge.tsx                           | TypeScript React |         67 |          8 |          5 |         80 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Chat/index.tsx                                             | TypeScript React |          0 |          8 |          1 |          9 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/.global.css                                          | CSS              |          0 |          0 |          1 |          1 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/Components/view-swticher.tsx                         | TypeScript React |         90 |         11 |          5 |        106 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/DataInterface/GanttData.tsx                          | TypeScript React |          8 |          8 |          3 |         19 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/DataInterface/GanttPanelInterface.tsx                | TypeScript React |          2 |          8 |          3 |         13 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/DataInterface/GanttTask.tsx                          | TypeScript React |          8 |          8 |          2 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/GanttPanel.tsx                                       | TypeScript React |        191 |          8 |         16 |        215 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/GanttTest.js                                         | JavaScript       |         22 |          8 |          4 |         34 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/Messages/UserWebGetGanttDataMessage.tsx              | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/Messages/WebReplyGetGanttDataMessage.tsx             | TypeScript React |          0 |          8 |          1 |          9 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Gantt/gantt-task.css                                       | CSS              |          0 |          0 |          1 |          1 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/Messages/UserWebGetCompleteProjectInfoMessage.tsx     | TypeScript React |          4 |          8 |          1 |         13 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/Messages/UserWebWSInitializeMessage.tsx               | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/Messages/UserWsInitializeMessage.tsx                  | TypeScript React |          6 |          8 |          3 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/Messages/WebReplyWSInitializeMessage.tsx              | TypeScript React |          4 |          8 |          1 |         13 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/index.tsx                                             | TypeScript React |         27 |         10 |          3 |         40 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/pages/HomePage.tsx                                    | TypeScript React |        409 |         14 |         21 |        444 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Home/pages/LeftTabs.tsx                                    | TypeScript React |        385 |         22 |         20 |        427 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Login/LoginPage.tsx                                        | TypeScript React |        124 |         10 |          4 |        138 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Login/views/LoginPanel.tsx                                 | TypeScript React |        260 |         10 |         18 |        288 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Login/views/RegisterPanel.tsx                              | TypeScript React |        162 |          8 |          6 |        176 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Members/MemberPanel.tsx                                    | TypeScript React |         71 |          8 |          3 |         82 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Projects/ProjectsPage.tsx                                  | TypeScript React |        278 |         12 |         13 |        303 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Projects/components/CreateProjectDialog.tsx                | TypeScript React |        310 |         57 |         18 |        385 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Projects/components/ProjectCard.tsx                        | TypeScript React |        186 |         46 |          9 |        241 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Components/AddToDoDialog.tsx                      | TypeScript React |        176 |          1 |         15 |        192 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Components/SyncEditPanel.tsx                      | TypeScript React |         26 |          8 |          6 |         40 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Components/TaskListPanel.tsx                      | TypeScript React |        133 |          8 |         16 |        157 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/MyEditTaskInterface.tsx             | TypeScript React |          8 |          8 |          4 |         20 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/MyTaskInterface.tsx                 | TypeScript React |          9 |          8 |          2 |         19 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/SelectTargetInterface.tsx           | TypeScript React |          6 |          0 |          3 |          9 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/SyncTaskInterface.tsx               | TypeScript React |         14 |          8 |          6 |         28 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/TaskProcessInfoInterface.tsx        | TypeScript React |          6 |          8 |          3 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/DataInterface/TaskToDoInfoInterface.tsx           | TypeScript React |          9 |          8 |          2 |         19 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/EditDetailPanel.tsx                               | TypeScript React |        599 |         42 |         34 |        675 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UseWebToDoJudgeMessage.tsx               | TypeScript React |          5 |          8 |          2 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebAddToDoMessage.tsx                | TypeScript React |          6 |          8 |          5 |         19 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebGetMyTaskListMessage.tsx          | TypeScript React |          5 |          8 |          2 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebGetSyncTaskInfoMessage.tsx        | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebGetUserNameMessage.tsx            | TypeScript React |          4 |          8 |          3 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebTaskProcessInfoSubmitMessage.tsx  | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWebToDoStatusChangeMessage.tsx       | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWsAddToDoMessage.tsx                 | TypeScript React |          5 |          8 |          3 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWsSyncEditMessage.tsx                | TypeScript React |          6 |          8 |          3 |         17 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWsTaskProcessInfoUpdateMessage.tsx   | TypeScript React |          6 |          8 |          4 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWsToDoStatusChangeMessage.tsx        | TypeScript React |          8 |          8 |          2 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/UserWsUpdateToDoJudgeMessage.tsx         | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyAddToDoMessage.tsx               | TypeScript React |          6 |          8 |          2 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyGetSyncTaskInfoMessage.tsx       | TypeScript React |          5 |          8 |          3 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyGetTaskListMessage.tsx           | TypeScript React |          5 |          8 |          5 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyGetUserNameMessage.tsx           | TypeScript React |          4 |          8 |          3 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyTaskProcessInfoUpdateMessage.tsx | TypeScript React |          6 |          8 |          5 |         19 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyToDoJudgeMessage.tsx             | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/SyncEdit/Messages/WebReplyToDoStatusChangeMessae.tsx       | TypeScript React |          5 |          8 |          2 |         15 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Components/CreateTaskDialog.tsx                      | TypeScript React |        532 |         15 |         35 |        582 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Components/EditTaskDialog.tsx                        | TypeScript React |        636 |         30 |         37 |        703 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Components/SelectMemberDialog.tsx                    | TypeScript React |        101 |         29 |          7 |        137 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Components/TaskCard.tsx                              | TypeScript React |        203 |         10 |         11 |        224 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/DataInterface/NewTaskInterface.tsx                   | TypeScript React |         10 |          8 |          2 |         20 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Messages/UserWebAddTaskMessage.tsx                   | TypeScript React |          5 |          8 |          3 |         16 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Messages/UserWebGetCompleteTaskInfoMessage.tsx       | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Messages/UserWebGetTasksInfoMessage.tsx              | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Messages/WebReplyGetCompleteTaskInfoMessage.tsx      | TypeScript React |          5 |          0 |          2 |          7 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/Messages/WebReplyGetTasksInfoMessage.tsx             | TypeScript React |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/Tasks/TasksPanel.tsx                                       | TypeScript React |        220 |         13 |         21 |        254 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/__tests__/App.test.tsx                                     | TypeScript React |          9 |          0 |          2 |         11 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/index.html                                                 | HTML             |         49 |          8 |          4 |         61 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/index.tsx                                                  | TypeScript React |         42 |         26 |          7 |         75 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/main.dev.ts                                                | TypeScript       |        113 |         21 |         21 |        155 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/menu.ts                                                    | TypeScript       |        276 |          0 |         15 |        291 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/package-lock.json                                          | JSON             |         31 |          0 |          1 |         32 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/package.json                                               | JSON             |         21 |          0 |          1 |         22 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/components/AlertDialog.tsx                           | TypeScript React |         47 |          8 |          4 |         59 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/components/KuibuAppBar.tsx                           | TypeScript React |         83 |          8 |          4 |         95 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/components/KuibuNotifyBar.tsx                        | TypeScript React |        106 |         16 |         10 |        132 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/components/KuibuTitle.tsx                            | TypeScript React |         19 |          8 |          3 |         30 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/components/UserContext.tsx                           | TypeScript React |         57 |         11 |          8 |         76 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/context.tsx                                          | TypeScript React |          9 |          8 |          1 |         18 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/globals.tsx                                          | TypeScript React |         25 |          8 |          2 |         35 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/src/utils/mock.tsx                                             | TypeScript React |          9 |          8 |          3 |         20 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/tsconfig.json                                                  | JSON             |         32 |          5 |          1 |         38 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/typings/imgs.d.ts                                              | TypeScript       |          4 |          8 |          1 |         13 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/typings/react-chat-elements.d.ts                               | TypeScript       |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/typings/react-flippy.d.ts                                      | TypeScript       |          4 |          8 |          2 |         14 |
+| /Users/tantianyi/Documents/MyWork/MyGraduationProject/create/typings/theme.d.ts                                             | TypeScript       |         11 |          8 |          1 |         20 |
+| Total                                                                                                                       |                  |     51,122 |      1,507 |        989 |     53,618 |
++-----------------------------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
